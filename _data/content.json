@@ -1,0 +1,27 @@
+{
+  "nom": "Loadjaxx",
+  "sous_titre": "DJ · Producer · Formateur",
+  "bio": "Passionné de musique depuis toujours, Loadjaxx s'est imposé comme une figure incontournable de la scène électronique. DJ, producteur et formateur, il partage sa passion à travers des sets enflammés, des remixes percutants et des formations qui inspirent la prochaine génération.",
+  "photo": "assets/photo.jpg",
+  "instagram": "https://www.instagram.com/loadjaxx/",
+  "linktree": "https://linktr.ee/loadjaxx",
+  "soundcloud": "",
+  "spotify": "",
+  "email_booking": "booking@loadjaxx.com",
+  "stats": [
+    { "valeur": "1743", "label": "Followers" },
+    { "valeur": "50+", "label": "Remixes" },
+    { "valeur": "5+", "label": "Ans d'expérience" },
+    { "valeur": "100+", "label": "Shows" }
+  ],
+  "releases": [
+    { "titre": "Rihanna — Why (Loadjaxx Remix)", "image": "assets/release1.jpg", "lien": "https://linktr.ee/loadjaxx" },
+    { "titre": "DJ Snake — Paradise (Loadjaxx Remix)", "image": "assets/release2.jpg", "lien": "https://linktr.ee/loadjaxx" },
+    { "titre": "Vald — PT30 (Loadjaxx Remix)", "image": "assets/release3.jpg", "lien": "https://linktr.ee/loadjaxx" },
+    { "titre": "Flawless", "image": "assets/release4.jpg", "lien": "https://linktr.ee/loadjaxx" }
+  ],
+  "shows": [
+    { "date": "2026-06-14", "lieu": "Glow Up", "ville": "Paris", "lien": "" },
+    { "date": "2026-07-04", "lieu": "Studio M", "ville": "Nice", "lien": "" }
+  ]
+}

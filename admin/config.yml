@@ -1,0 +1,47 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "assets"
+public_folder: "assets"
+
+collections:
+  - name: "content"
+    label: "Mon site"
+    files:
+
+      - name: "general"
+        label: "Infos générales"
+        file: "_data/content.json"
+        format: json
+        fields:
+          - { label: "Nom artiste",    name: nom,          widget: string }
+          - { label: "Sous-titre",     name: sous_titre,   widget: string }
+          - { label: "Bio",            name: bio,          widget: text }
+          - { label: "Photo",          name: photo,        widget: image }
+          - { label: "Instagram URL",  name: instagram,    widget: string }
+          - { label: "Linktree URL",   name: linktree,     widget: string }
+          - { label: "SoundCloud URL", name: soundcloud,   widget: string, required: false }
+          - { label: "Spotify URL",    name: spotify,      widget: string, required: false }
+          - { label: "Email booking",  name: email_booking, widget: string }
+          - label: "Statistiques"
+            name: stats
+            widget: list
+            fields:
+              - { label: "Valeur", name: valeur, widget: string }
+              - { label: "Label",  name: label,  widget: string }
+          - label: "Releases & Remixes"
+            name: releases
+            widget: list
+            fields:
+              - { label: "Titre",  name: titre, widget: string }
+              - { label: "Image",  name: image, widget: image }
+              - { label: "Lien",   name: lien,  widget: string }
+          - label: "Dates de shows"
+            name: shows
+            widget: list
+            fields:
+              - { label: "Date",  name: date, widget: date, format: "YYYY-MM-DD" }
+              - { label: "Lieu",  name: lieu, widget: string }
+              - { label: "Ville", name: ville, widget: string }
+              - { label: "Lien billets", name: lien, widget: string, required: false }
