@@ -3,33 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Loadjaxx — DJ · Producer · Formateur</title>
-  <meta name="description" content="Loadjaxx — DJ, Producer et Formateur. Remixes, shows et booking." />
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Loadjaxx — DJ · Producer · Formateur" />
-  <meta property="og:description" content="Remixes · Shows · Booking. Retrouvez toute l'actualité de Loadjaxx." />
-  <meta property="og:image" content="assets/og-image.jpg" />
+  <title>Loadjaxx — DJ · Producer</title>
+  <meta name="description" content="Loadjaxx — DJ et Producer. Remixes, shows et booking." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
   <!-- LOADER -->
   <div id="loader">
+    <div class="loader-panel loader-panel-top"></div>
+    <div class="loader-panel loader-panel-bottom"></div>
     <div class="loader-inner">
-      <canvas id="loaderCanvas"></canvas>
-      <div class="loader-name">LOADJAXX</div>
-      <div class="loader-label">Chargement</div>
+      <canvas id="loaderEq" width="200" height="48"></canvas>
+      <div class="loader-word">
+        <span class="lc">L</span><span class="lc">O</span><span class="lc">A</span><span class="lc">D</span><span class="lc lc-orange">J</span><span class="lc lc-orange">A</span><span class="lc lc-orange">X</span><span class="lc lc-orange">X</span>
+      </div>
+      <div class="loader-sub">DJ · Producer · Montpellier</div>
+      <div class="loader-bottom">
+        <div class="loader-daw" id="loaderDaw"></div>
+        <div class="loader-pct">0%</div>
+      </div>
     </div>
-    <div class="loader-progress"><div class="loader-progress-fill"></div></div>
   </div>
 
-  <!-- NAVIGATION -->
+  <!-- NAVBAR -->
   <nav id="navbar">
     <div class="nav-inner">
-      <a href="#hero" class="nav-logo">LDX</a>
+      <a href="#hero" class="nav-logo">LDJX<span>.</span></a>
       <ul class="nav-links">
         <button class="nav-close" aria-label="Fermer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -48,44 +51,139 @@
 
   <!-- HERO -->
   <section id="hero">
-    <div class="hero-bg">
-      <div class="hero-wave" id="heroWave"></div>
-      <div class="hero-grain"></div>
-    </div>
-    <div class="hero-content">
-      <p class="hero-tag" style="visibility:hidden">DJ · Producer · Formateur</p>
-      <h1 class="hero-name" style="visibility:hidden">LOADJAXX</h1>
-      <div class="g-line-sep" style="visibility:hidden"></div>
-      <p class="hero-sub" style="visibility:hidden">Remixes qui claquent. Sets qui marquent.</p>
-      <div class="hero-cta" style="visibility:hidden">
-        <a href="https://linktr.ee/loadjaxx" target="_blank" class="btn-primary">Écouter</a>
-        <a href="#contact" class="btn-ghost">Me booker</a>
+    <!-- Fond CSS animé : gradient + photo portrait + grille + orbs -->
+    <div class="hero-bg-gradient" aria-hidden="true"></div>
+    <div class="hero-photo" aria-hidden="true"></div>
+    <div class="hero-bg-grid" aria-hidden="true"></div>
+    <div class="hero-bg-orb hero-bg-orb-1" aria-hidden="true"></div>
+    <div class="hero-bg-orb hero-bg-orb-2" aria-hidden="true"></div>
+    <div class="hero-overlay"></div>
+    <canvas id="heroWave"></canvas>
+
+    <!-- Statut top-left -->
+    <div class="hero-status" style="visibility:hidden">
+      <span class="hero-status-dot"></span>
+      <div class="hero-status-text">
+        <span class="hero-status-line1">DJ · Producer</span>
+        <span class="hero-status-line2">Montpellier · FR</span>
       </div>
     </div>
-    <div class="hero-scroll" style="visibility:hidden"><span></span></div>
+
+    <!-- Mini-card "Next show" top-right (rempli par JS) -->
+    <a href="#shows" class="hero-next-card" id="heroNextCard" style="visibility:hidden">
+      <div class="hero-next-label">⦿ Next show</div>
+      <div class="hero-next-date"><span class="hero-next-day">—</span><span class="hero-next-mon">—</span></div>
+      <div class="hero-next-meta">
+        <div class="hero-next-city">—</div>
+        <div class="hero-next-countdown">—</div>
+      </div>
+    </a>
+
+    <div class="hero-content">
+      <div class="hero-tagline" style="visibility:hidden">
+        <span class="hero-tagline-bar"></span>
+        <span>DJ / Producer · Releasing since 2010</span>
+      </div>
+
+      <h1 class="hero-name" style="visibility:hidden">
+        <span class="hero-name-outline">LOAD</span><span class="hero-name-fill">JAXX</span>
+      </h1>
+
+      <div class="hero-bottom" style="visibility:hidden">
+        <div class="hero-cta">
+          <a href="https://linktr.ee/loadjaxx" target="_blank" class="hero-btn-play">
+            <span class="hero-btn-play-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+            </span>
+            Écouter
+          </a>
+          <a href="#contact" class="hero-btn-text">Booking <span>→</span></a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat"><b>+500K</b><span>Streams</span></div>
+          <div class="hero-stat-sep"></div>
+          <div class="hero-stat"><b>200+</b><span>Shows</span></div>
+          <div class="hero-stat-sep"></div>
+          <div class="hero-stat"><b>30+</b><span>Tracks</span></div>
+        </div>
+      </div>
+    </div>
+
   </section>
 
-  <!-- À PROPOS -->
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <div class="marquee-set" aria-hidden="false">
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+      </div>
+      <div class="marquee-set" aria-hidden="true">
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span>//</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
   <section id="about">
     <div class="container">
       <div class="about-grid">
-        <div class="about-visual">
-          <div class="about-img-wrap">
-            <div class="about-img-placeholder">
-              <div class="equalizer">
-                <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-                <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-                <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-                <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-              </div>
+        <div class="about-visual-wrap">
+          <div class="about-img-frame">
+            <div class="about-img-shade"></div>
+            <div class="about-watermark-l">L</div>
+            <div class="about-img-overlay">LOADJAXX</div>
+            <div class="about-now-playing">
+              <span class="about-now-dot"></span>
+              <span class="about-now-label">Now playing</span>
             </div>
+            <div class="about-eq">
+              <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+              <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+              <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+              <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            </div>
+            <div class="about-img-badge-location">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              Montpellier, FR
+            </div>
+          </div>
+          <div class="about-tag-float">
+            <strong>50+</strong>
+            Remixes
           </div>
         </div>
         <div class="about-text">
-          <span class="section-tag">À PROPOS</span>
-          <h2 class="section-title">La musique<br>comme langage.</h2>
-          <p>Passionné de musique depuis toujours, Loadjaxx s'est imposé comme une figure incontournable de la scène électronique. DJ, producteur et formateur, il partage sa passion à travers des sets enflammés et des remixes percutants.</p>
-          <p>Formateur musical, il inspire la prochaine génération d'artistes à travers ses masterclasses et ses ateliers.</p>
+          <span class="section-tag">À propos</span>
+          <h2>La musique<br>comme langage.</h2>
+          <p>DJ et producteur basé à Montpellier, Loadjaxx construit son univers autour d'un son électro brut et efficace — kicks qui punchent, basses qui enfoncent, sets qui ne laissent personne indifférent.</p>
+          <p>De la scène locale aux clubs parisiens, il impose un style reconnaissable : énergie maximale, sélection chirurgicale, 128 BPM comme signature.</p>
+
+          <div class="about-tags">
+            <span>Electro</span>
+            <span>House</span>
+            <span>Tech House</span>
+            <span>128 BPM</span>
+            <span>Club</span>
+            <span>Remixes</span>
+          </div>
+
+          <blockquote class="about-quote">"Le son avant tout."</blockquote>
+
           <div class="about-stats">
             <div class="stat-item">
               <div class="stat-num">1743</div>
@@ -96,8 +194,8 @@
               <div class="stat-label">Remixes</div>
             </div>
             <div class="stat-item">
-              <div class="stat-num">5<sup>+</sup></div>
-              <div class="stat-label">Ans d'expérience</div>
+              <div class="stat-num">500K<sup>+</sup></div>
+              <div class="stat-label">Streams</div>
             </div>
             <div class="stat-item">
               <div class="stat-num">100<sup>+</sup></div>
@@ -112,64 +210,39 @@
   <!-- RELEASES -->
   <section id="releases">
     <div class="container">
-      <div class="section-header">
-        <span class="section-tag">RELEASES & REMIXES</span>
-        <h2 class="section-title">Les sons.</h2>
+      <div class="releases-intro">
+        <div>
+          <span class="section-tag">Releases & Remixes</span>
+          <h2>Les sons.</h2>
+        </div>
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="btn-ghost">Tout voir</a>
       </div>
-      <div class="releases-grid">
-
-        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card">
+      <div class="releases-streams">
+        <span class="releases-streams-num" id="streamsCount">0</span>
+        <span class="releases-streams-label">streams cumulés</span>
+        <div class="releases-streams-bar"></div>
+      </div>
+      <div class="releases-grid" id="releasesGrid">
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card release-card--feat">
+          <div class="release-badge-new">New</div>
+          <div class="release-num">01</div>
           <div class="release-cover">
-            <div class="release-cover-bg" style="background: linear-gradient(135deg, #FF5A00, #1a0a00)"></div>
-            <div class="release-play">
-              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+            <div class="release-cover-bg" style="background:linear-gradient(135deg,#FF5A00 0%,#1a0500 100%)"></div>
+            <div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div>
+            <div class="release-feat-info">
+              <div class="release-feat-title">Rihanna — Why</div>
+              <div class="release-feat-sub">Loadjaxx Remix · 2026</div>
             </div>
           </div>
-          <div class="release-info">
-            <div class="release-title">Rihanna — Why</div>
-            <div class="release-sub">Loadjaxx Remix</div>
-          </div>
         </a>
-
-        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card">
-          <div class="release-cover">
-            <div class="release-cover-bg" style="background: linear-gradient(135deg, #FF8C42, #0d0d0d)"></div>
-            <div class="release-play">
-              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-            </div>
-          </div>
-          <div class="release-info">
-            <div class="release-title">DJ Snake — Paradise</div>
-            <div class="release-sub">Loadjaxx Remix</div>
-          </div>
-        </a>
-
-        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card">
-          <div class="release-cover">
-            <div class="release-cover-bg" style="background: linear-gradient(135deg, #cc4400, #FF5A00)"></div>
-            <div class="release-play">
-              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-            </div>
-          </div>
-          <div class="release-info">
-            <div class="release-title">Vald — PT30</div>
-            <div class="release-sub">Loadjaxx Remix</div>
-          </div>
-        </a>
-
-        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card">
-          <div class="release-cover">
-            <div class="release-cover-bg" style="background: linear-gradient(135deg, #1a0800, #FF5A00)"></div>
-            <div class="release-play">
-              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-            </div>
-          </div>
-          <div class="release-info">
-            <div class="release-title">Flawless</div>
-            <div class="release-sub">Original</div>
-          </div>
-        </a>
-
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card"><div class="release-num">02</div><div class="release-cover"><div class="release-cover-bg" style="background:linear-gradient(135deg,#FF8C42 0%,#0d0500 100%)"></div><div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div></div><div class="release-info"><div class="release-title">Friendly (Remix)</div><div class="release-sub">Single · 2025</div></div></a>
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card"><div class="release-num">03</div><div class="release-cover"><div class="release-cover-bg" style="background:linear-gradient(135deg,#cc3300 0%,#FF5A00 100%)"></div><div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div></div><div class="release-info"><div class="release-title">Friendly</div><div class="release-sub">Single · 2025</div></div></a>
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card"><div class="release-num">04</div><div class="release-cover"><div class="release-cover-bg" style="background:linear-gradient(135deg,#111 0%,#FF5A00 100%)"></div><div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div></div><div class="release-info"><div class="release-title">Flawless</div><div class="release-sub">Single · 2025</div></div></a>
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card"><div class="release-num">05</div><div class="release-cover"><div class="release-cover-bg" style="background:linear-gradient(135deg,#1a1a2e 0%,#FF5A00 100%)"></div><div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div></div><div class="release-info"><div class="release-title">Free My Mind</div><div class="release-sub">Single · 2025</div></div></a>
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card"><div class="release-num">06</div><div class="release-cover"><div class="release-cover-bg" style="background:linear-gradient(135deg,#0a2a1a 0%,#FF8C42 100%)"></div><div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div></div><div class="release-info"><div class="release-title">House + Tequila</div><div class="release-sub">Single · 2024</div></div></a>
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card"><div class="release-num">07</div><div class="release-cover"><div class="release-cover-bg" style="background:linear-gradient(135deg,#1a0020 0%,#FF5A00 100%)"></div><div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div></div><div class="release-info"><div class="release-title">My Bubble</div><div class="release-sub">Single · 2024</div></div></a>
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card"><div class="release-num">08</div><div class="release-cover"><div class="release-cover-bg" style="background:linear-gradient(135deg,#FF5A00 0%,#330000 100%)"></div><div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div></div><div class="release-info"><div class="release-title">Gold Face</div><div class="release-sub">Single · 2023</div></div></a>
+        <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card"><div class="release-num">09</div><div class="release-cover"><div class="release-cover-bg" style="background:linear-gradient(135deg,#0d0d0d 0%,#FF8C42 100%)"></div><div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div></div><div class="release-info"><div class="release-title">Ring Mode</div><div class="release-sub">Single · 2023</div></div></a>
       </div>
       <div class="releases-more">
         <a href="https://linktr.ee/loadjaxx" target="_blank" class="btn-ghost">Voir tout sur Linktree</a>
@@ -179,60 +252,250 @@
 
   <!-- SHOWS -->
   <section id="shows">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag">AGENDA</span>
-        <h2 class="section-title">Les shows.</h2>
+    <!-- Marquee défilante villes -->
+    <div class="shows-marquee" aria-hidden="true">
+      <div class="shows-marquee-track">
+        <span>Paris</span><span class="dot">●</span>
+        <span>Montpellier</span><span class="dot">●</span>
+        <span>Marseille</span><span class="dot">●</span>
+        <span>Lyon</span><span class="dot">●</span>
+        <span>Bordeaux</span><span class="dot">●</span>
+        <span>Berlin</span><span class="dot">●</span>
+        <span>Amsterdam</span><span class="dot">●</span>
+        <span>Bruxelles</span><span class="dot">●</span>
+        <!-- Duplicate pour boucle infinie -->
+        <span>Paris</span><span class="dot">●</span>
+        <span>Montpellier</span><span class="dot">●</span>
+        <span>Marseille</span><span class="dot">●</span>
+        <span>Lyon</span><span class="dot">●</span>
+        <span>Bordeaux</span><span class="dot">●</span>
+        <span>Berlin</span><span class="dot">●</span>
+        <span>Amsterdam</span><span class="dot">●</span>
+        <span>Bruxelles</span><span class="dot">●</span>
       </div>
-      <div class="shows-list">
+    </div>
 
-        <div class="show-item">
-          <div class="show-date">
+    <div class="shows-header-wrap">
+      <div class="container">
+        <div class="shows-header">
+          <div>
+            <span class="section-tag">Agenda</span>
+            <h2>Les shows.</h2>
+          </div>
+          <a href="#contact" class="btn-primary">Booker une date</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero "Next show" — rempli par JS depuis le 1er show upcoming -->
+    <div class="shows-featured container" id="showsFeatured"></div>
+
+    <!-- Filtres -->
+    <div class="container shows-filters-wrap">
+      <div class="shows-filters" role="tablist">
+        <button class="shows-filter active" data-filter="all">Tous</button>
+        <button class="shows-filter" data-filter="upcoming">À venir</button>
+        <button class="shows-filter" data-filter="past">Passés</button>
+      </div>
+      <div class="shows-count"><span class="shows-count-num" id="showsCountNum">0</span>dates</div>
+    </div>
+
+    <div class="shows-list">
+
+      <div class="show-item" data-date="2026-06-14" data-color="#FF5A00">
+        <div class="show-item-bg"></div>
+        <div class="show-item-inner">
+          <div class="show-num">01</div>
+          <div class="show-date-block">
             <div class="show-day">14</div>
-            <div class="show-month">JUN</div>
+            <div class="show-month">Jun 2026</div>
           </div>
           <div class="show-info">
-            <div class="show-venue">Glow Up</div>
-            <div class="show-city">Paris, France</div>
+            <div class="show-venue">Glow Up <span class="show-badge show-badge--sold">Sold Out</span></div>
+            <div class="show-city">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              Paris, France
+            </div>
           </div>
-          <div class="show-action">
-            <a href="https://linktr.ee/loadjaxx" target="_blank" class="btn-small">Billets</a>
-          </div>
+          <div class="show-countdown" data-date="2026-06-14">—</div>
+          <div class="show-action"><a href="https://linktr.ee/loadjaxx" target="_blank" class="btn-small">Billets</a></div>
         </div>
+        <div class="show-progress"><div class="show-progress-fill" data-date="2026-06-14"></div></div>
+      </div>
 
-        <div class="show-item">
-          <div class="show-date">
+      <div class="show-item" data-date="2026-07-04" data-color="#FF8C42">
+        <div class="show-item-bg"></div>
+        <div class="show-item-inner">
+          <div class="show-num">02</div>
+          <div class="show-date-block">
             <div class="show-day">04</div>
-            <div class="show-month">JUL</div>
+            <div class="show-month">Jul 2026</div>
           </div>
           <div class="show-info">
             <div class="show-venue">Studio M</div>
-            <div class="show-city">Nice, France</div>
+            <div class="show-city">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              Montpellier, France
+            </div>
           </div>
-          <div class="show-action">
-            <a href="#contact" class="btn-small">Infos</a>
-          </div>
+          <div class="show-countdown" data-date="2026-07-04">—</div>
+          <div class="show-action"><a href="#contact" class="btn-small">Infos</a></div>
         </div>
-
+        <div class="show-progress"><div class="show-progress-fill" data-date="2026-07-04"></div></div>
       </div>
+
+      <div class="show-item" data-date="2026-08-22" data-color="#FF5A00">
+        <div class="show-item-bg"></div>
+        <div class="show-item-inner">
+          <div class="show-num">03</div>
+          <div class="show-date-block">
+            <div class="show-day">22</div>
+            <div class="show-month">Août 2026</div>
+          </div>
+          <div class="show-info">
+            <div class="show-venue">Warehouse Festival</div>
+            <div class="show-city">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              Marseille, France
+            </div>
+          </div>
+          <div class="show-countdown" data-date="2026-08-22">—</div>
+          <div class="show-action"><a href="#contact" class="btn-small">Infos</a></div>
+        </div>
+        <div class="show-progress"><div class="show-progress-fill" data-date="2026-08-22"></div></div>
+      </div>
+
+      <div class="show-item" data-date="2026-09-05" data-color="#FF8C42">
+        <div class="show-item-bg"></div>
+        <div class="show-item-inner">
+          <div class="show-num">04</div>
+          <div class="show-date-block">
+            <div class="show-day">05</div>
+            <div class="show-month">Sep 2026</div>
+          </div>
+          <div class="show-info">
+            <div class="show-venue">Le Réservoir</div>
+            <div class="show-city">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              Lyon, France
+            </div>
+          </div>
+          <div class="show-countdown" data-date="2026-09-05">—</div>
+          <div class="show-action"><a href="#contact" class="btn-small">Infos</a></div>
+        </div>
+        <div class="show-progress"><div class="show-progress-fill" data-date="2026-09-05"></div></div>
+      </div>
+
+      <!-- Exemple d'archive (date passée) -->
+      <div class="show-item" data-date="2025-11-15" data-color="#FF5A00">
+        <div class="show-item-bg"></div>
+        <div class="show-item-inner">
+          <div class="show-num">05</div>
+          <div class="show-date-block">
+            <div class="show-day">15</div>
+            <div class="show-month">Nov 2025</div>
+          </div>
+          <div class="show-info">
+            <div class="show-venue">Nuits Sonores</div>
+            <div class="show-city">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+              Bordeaux, France
+            </div>
+          </div>
+          <div class="show-countdown" data-date="2025-11-15">—</div>
+          <div class="show-action"><a href="https://linktr.ee/loadjaxx" target="_blank" class="btn-small">Replay</a></div>
+        </div>
+        <div class="show-progress"><div class="show-progress-fill" data-date="2025-11-15"></div></div>
+      </div>
+
     </div>
   </section>
 
   <!-- EPK -->
   <section id="epk">
-    <div class="container">
-      <div class="epk-inner">
-        <div class="epk-text">
-          <span class="section-tag">DOSSIER DE PRESSE</span>
-          <h2 class="section-title">EPK.</h2>
-          <p>Retrouvez toutes les informations presse : biographie complète, photos HD, rider technique et références.</p>
-          <a href="https://linktr.ee/loadjaxx" target="_blank" class="btn-primary">Télécharger l'EPK</a>
+    <!-- Bandeau orange pleine largeur -->
+    <div class="epk-banner">
+      <div class="epk-banner-inner">
+        <div class="epk-banner-left">
+          <span class="epk-label">Dossier de presse</span>
+          <h2 class="epk-title">Press Kit <span>&</span> EPK.</h2>
+          <a href="https://linktr.ee/loadjaxx" target="_blank" class="epk-dl-btn">
+            <span class="epk-dl-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+            </span>
+            Télécharger l'EPK
+          </a>
+
+          <!-- Stats en grille 2×2 sous le titre -->
+          <div class="epk-stats epk-stats--grid">
+            <div class="epk-stat">
+              <span class="epk-stat-num">+500K</span>
+              <span class="epk-stat-lbl">Streams cumulés</span>
+            </div>
+            <div class="epk-stat">
+              <span class="epk-stat-num">15+</span>
+              <span class="epk-stat-lbl">Ans d'expérience</span>
+            </div>
+            <div class="epk-stat">
+              <span class="epk-stat-num">200+</span>
+              <span class="epk-stat-lbl">Shows joués</span>
+            </div>
+            <div class="epk-stat">
+              <span class="epk-stat-num">30+</span>
+              <span class="epk-stat-lbl">Remixes & Tracks</span>
+            </div>
+          </div>
         </div>
-        <div class="epk-visual">
-          <div class="epk-badge">
-            <div class="epk-badge-inner">
-              <span>EPK</span>
-              <small>2026</small>
+
+        <!-- Portrait studio à droite : magazine cover -->
+        <div class="epk-banner-photo">
+          <div class="epk-photo-frame">
+            <div class="epk-photo-tag">
+              <span>● Press · 2026</span>
+            </div>
+            <div class="epk-photo-credit">© Loadjaxx Studio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Contenu sous la bannière -->
+    <div class="epk-kit-row">
+      <div class="container">
+        <div class="epk-kit-grid">
+          <div class="epk-kit-item">
+            <div class="epk-kit-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div>
+              <div class="epk-kit-name">Biographie</div>
+              <div class="epk-kit-sub">Courte & longue version</div>
+            </div>
+          </div>
+          <div class="epk-kit-item">
+            <div class="epk-kit-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            </div>
+            <div>
+              <div class="epk-kit-name">Photos HD</div>
+              <div class="epk-kit-sub">Promo + live</div>
+            </div>
+          </div>
+          <div class="epk-kit-item">
+            <div class="epk-kit-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </div>
+            <div>
+              <div class="epk-kit-name">Rider technique</div>
+              <div class="epk-kit-sub">Son & scène</div>
+            </div>
+          </div>
+          <div class="epk-kit-item">
+            <div class="epk-kit-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div>
+              <div class="epk-kit-name">Références médias</div>
+              <div class="epk-kit-sub">Presse & radios</div>
             </div>
           </div>
         </div>
@@ -245,17 +508,17 @@
     <div class="container">
       <div class="contact-grid">
         <div class="contact-left">
-          <span class="section-tag">BOOKING & CONTACT</span>
-          <h2 class="section-title">Travaillons<br>ensemble.</h2>
-          <p>Pour tout booking, collaboration ou question, envoyez un message.</p>
+          <span class="section-tag">Booking & Contact</span>
+          <h2>Travaillons<br>ensemble.</h2>
+          <p>Pour tout booking, collaboration ou question, envoyez un message. Réponse sous 48h.</p>
           <div class="contact-socials">
             <a href="https://www.instagram.com/loadjaxx/" target="_blank" class="social-link">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
-              Instagram
+              @loadjaxx
             </a>
             <a href="https://linktr.ee/loadjaxx" target="_blank" class="social-link">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-              Linktree
+              linktr.ee/loadjaxx
             </a>
           </div>
         </div>
@@ -282,7 +545,7 @@
             <label>Message</label>
             <textarea name="message" rows="5" placeholder="Décrivez votre projet..." required></textarea>
           </div>
-          <button type="submit" class="btn-primary full">Envoyer</button>
+          <button type="submit" class="btn-primary full">Envoyer le message</button>
           <p class="form-note" id="formNote"></p>
         </form>
       </div>
@@ -293,7 +556,7 @@
   <footer>
     <div class="container">
       <div class="footer-inner">
-        <div class="footer-logo">LOADJAXX</div>
+        <div class="footer-logo">LOAD<span>JAXX</span></div>
         <div class="footer-copy">© 2026 Loadjaxx. Tous droits réservés.</div>
         <div class="footer-links">
           <a href="https://www.instagram.com/loadjaxx/" target="_blank">Instagram</a>
@@ -302,6 +565,28 @@
       </div>
     </div>
   </footer>
+
+  <!-- BPM SYNC FAB ─ module signature -->
+  <button id="bpmSync" class="bpm-fab" aria-label="Synchroniser le site sur 128 BPM" title="BPM Sync · 128">
+    <span class="bpm-fab-ring"></span>
+    <span class="bpm-fab-core">
+      <span class="bpm-fab-dot"></span>
+      <span class="bpm-fab-num">128</span>
+      <span class="bpm-fab-lbl">BPM</span>
+    </span>
+  </button>
+  <div id="bpmBeats" class="bpm-beats" aria-hidden="true">
+    <span data-beat="1">1</span>
+    <span data-beat="2">2</span>
+    <span data-beat="3">3</span>
+    <span data-beat="4">4</span>
+  </div>
+
+  <!-- NOW PREVIEWING toast -->
+  <div id="nowPreviewing" class="now-preview" aria-live="polite">
+    <span class="now-preview-eq"><i></i><i></i><i></i><i></i></span>
+    <span class="now-preview-text">—</span>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
