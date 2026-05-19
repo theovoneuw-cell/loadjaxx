@@ -1399,19 +1399,19 @@ function spawnVinylConfetti(originEl) {
   const popup   = document.getElementById('mapPopup');
   if (!svg || !citiesG || !routeEl) return;
 
-  // Coordonnées approximatives des villes sur viewBox 220x240
+  // Coordonnées des villes — viewBox 220x240, alignées sur le contour hexagonal
   const CITY_COORDS = {
-    'paris':       { x: 115, y: 48,  label: 'Paris'      },
-    'lyon':        { x: 132, y: 118, label: 'Lyon'       },
-    'bordeaux':    { x: 70,  y: 142, label: 'Bordeaux'   },
-    'montpellier': { x: 115, y: 178, label: 'Montpellier'},
-    'marseille':   { x: 143, y: 187, label: 'Marseille'  },
-    'lille':       { x: 122, y: 30,  label: 'Lille'      },
-    'strasbourg':  { x: 175, y: 70,  label: 'Strasbourg' },
-    'toulouse':    { x: 95,  y: 180, label: 'Toulouse'   },
-    'nantes':      { x: 60,  y: 105, label: 'Nantes'     },
-    'rennes':      { x: 60,  y: 80,  label: 'Rennes'     },
-    'nice':        { x: 168, y: 180, label: 'Nice'       },
+    'paris':       { x: 118, y: 58,  label: 'Paris'      },
+    'lyon':        { x: 142, y: 128, label: 'Lyon'       },
+    'bordeaux':    { x: 60,  y: 162, label: 'Bordeaux'   },
+    'montpellier': { x: 118, y: 188, label: 'Montpellier'},
+    'marseille':   { x: 148, y: 192, label: 'Marseille'  },
+    'lille':       { x: 125, y: 28,  label: 'Lille'      },
+    'strasbourg':  { x: 170, y: 62,  label: 'Strasbourg' },
+    'toulouse':    { x: 95,  y: 188, label: 'Toulouse'   },
+    'nantes':      { x: 52,  y: 112, label: 'Nantes'     },
+    'rennes':      { x: 55,  y: 82,  label: 'Rennes'     },
+    'nice':        { x: 168, y: 188, label: 'Nice'       },
   };
 
   function normalize(s) {
