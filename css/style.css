@@ -2443,11 +2443,10 @@ h1, h2, h3 {
 /* ── CONTACT ─────────────────────────────────────────────── */
 #contact {
   background: var(--bg2);
-  padding: 24px 0 110px;        /* top réduit à 24 → la section colle visuellement au noir EPK au-dessus */
+  padding: 50px 0 110px;        /* top : 50px → assez pour respirer mais pas géant comme avant */
   position: relative;
   overflow: hidden;
 }
-.contact-left h2 { margin-top: 0; }
 /* Bordure de transition orange fine entre EPK (noir) et contact (clair) */
 #contact::before {
   content: '';
@@ -2455,6 +2454,12 @@ h1, h2, h3 {
   top: 0; left: 0; right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent 0%, rgba(255, 90, 0, 0.4) 50%, transparent 100%);
+  pointer-events: none;
+}
+.contact-left {
+  display: block;
+  position: relative;
+  z-index: 1;
 }
 
 .contact-grid {
