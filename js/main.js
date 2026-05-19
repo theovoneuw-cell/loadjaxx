@@ -286,12 +286,20 @@ async function loadShows() {
       ? '<span class="show-badge show-badge--sold">Sold Out</span>'
       : '';
     const cityLine = [show.city, show.country].filter(Boolean).join(', ');
+    // Ligne ville + heure (l'heure n'apparaît que si renseignée)
+    const timeChunk = show.time
+      ? `<span class="show-time"> · ${show.time}</span>`
+      : '';
     const actionLink = show.link
       ? `<a href="${show.link}" target="_blank" rel="noopener" class="btn-small">${show.link_label || 'Billets'}</a>`
       : `<a href="#contact" class="btn-small">${show.link_label || 'Infos'}</a>`;
 
+    // Data attributes pour que la map puisse récupérer lat/lng custom si fournis
+    const latAttr = (show.lat != null && !isNaN(show.lat)) ? ` data-lat="${show.lat}"` : '';
+    const lngAttr = (show.lng != null && !isNaN(show.lng)) ? ` data-lng="${show.lng}"` : '';
+
     return `
-      <div class="show-item" data-date="${show.date}" data-color="${color}">
+      <div class="show-item" data-date="${show.date}" data-color="${color}"${latAttr}${lngAttr}>
         <div class="show-item-bg"></div>
         <div class="show-item-inner">
           <div class="show-num">${String(i + 1).padStart(2, '0')}</div>
@@ -301,7 +309,7 @@ async function loadShows() {
           </div>
           <div class="show-info">
             <div class="show-venue">${show.venue}${soldBadge ? ' ' + soldBadge : ''}</div>
-            <div class="show-city">${MAP_PIN_SVG}${cityLine}</div>
+            <div class="show-city">${MAP_PIN_SVG}${cityLine}${timeChunk}</div>
           </div>
           <div class="show-countdown" data-date="${show.date}">—</div>
           <div class="show-action">${actionLink}</div>
@@ -325,6 +333,13 @@ async function loadShows() {
     // Échec silencieux — la section reste vide, le featured affichera
     // "Aucun show à venir" via le renderFeatured existant
     list.innerHTML = '';
+  }
+  // La carte Leaflet a peut-être déjà tourné avec un DOM vide — on lui demande
+  // de re-build maintenant qu'on a injecté les show-items
+  if (typeof window._refreshTourMap === 'function') {
+    // setTimeout pour laisser le tri/marking past s'appliquer d'abord dans initScrollAnimations
+    setTimeout(() => window._refreshTourMap(), 100);
+    setTimeout(() => window._refreshTourMap(), 600);
   }
 }
 
@@ -1564,19 +1579,61 @@ function spawnVinylConfetti(originEl) {
   const popup   = document.getElementById('mapPopup');
   if (!mapEl || typeof L === 'undefined') return;
 
-  // Coordonnées GPS réelles
+  // Coordonnées GPS des principales villes françaises — résolution auto
+  // depuis le champ "city" du CMS. Si une ville n'est pas dans cette table,
+  // l'admin peut renseigner les champs lat/lng manuellement dans le panel.
   const CITY_COORDS = {
-    'paris':       { lat: 48.8566, lng: 2.3522,  label: 'Paris'      },
-    'lyon':        { lat: 45.7640, lng: 4.8357,  label: 'Lyon'       },
-    'bordeaux':    { lat: 44.8378, lng: -0.5792, label: 'Bordeaux'   },
-    'montpellier': { lat: 43.6108, lng: 3.8767,  label: 'Montpellier'},
-    'marseille':   { lat: 43.2965, lng: 5.3698,  label: 'Marseille'  },
-    'lille':       { lat: 50.6292, lng: 3.0573,  label: 'Lille'      },
-    'strasbourg':  { lat: 48.5734, lng: 7.7521,  label: 'Strasbourg' },
-    'toulouse':    { lat: 43.6047, lng: 1.4442,  label: 'Toulouse'   },
-    'nantes':      { lat: 47.2184, lng: -1.5536, label: 'Nantes'     },
-    'rennes':      { lat: 48.1173, lng: -1.6778, label: 'Rennes'     },
-    'nice':        { lat: 43.7102, lng: 7.2620,  label: 'Nice'       },
+    'paris':            { lat: 48.8566, lng: 2.3522,  label: 'Paris'           },
+    'lyon':             { lat: 45.7640, lng: 4.8357,  label: 'Lyon'            },
+    'marseille':        { lat: 43.2965, lng: 5.3698,  label: 'Marseille'       },
+    'toulouse':         { lat: 43.6047, lng: 1.4442,  label: 'Toulouse'        },
+    'nice':             { lat: 43.7102, lng: 7.2620,  label: 'Nice'            },
+    'nantes':           { lat: 47.2184, lng: -1.5536, label: 'Nantes'          },
+    'montpellier':      { lat: 43.6108, lng: 3.8767,  label: 'Montpellier'     },
+    'strasbourg':       { lat: 48.5734, lng: 7.7521,  label: 'Strasbourg'      },
+    'bordeaux':         { lat: 44.8378, lng: -0.5792, label: 'Bordeaux'        },
+    'lille':            { lat: 50.6292, lng: 3.0573,  label: 'Lille'           },
+    'rennes':           { lat: 48.1173, lng: -1.6778, label: 'Rennes'          },
+    'reims':            { lat: 49.2583, lng: 4.0317,  label: 'Reims'           },
+    'lehavre':          { lat: 49.4944, lng: 0.1079,  label: 'Le Havre'        },
+    'saintetienne':     { lat: 45.4397, lng: 4.3872,  label: 'Saint-Étienne'   },
+    'toulon':           { lat: 43.1242, lng: 5.9280,  label: 'Toulon'          },
+    'grenoble':         { lat: 45.1885, lng: 5.7245,  label: 'Grenoble'        },
+    'dijon':            { lat: 47.3220, lng: 5.0415,  label: 'Dijon'           },
+    'angers':           { lat: 47.4784, lng: -0.5632, label: 'Angers'          },
+    'nimes':            { lat: 43.8367, lng: 4.3601,  label: 'Nîmes'           },
+    'aixenprovence':    { lat: 43.5297, lng: 5.4474,  label: 'Aix-en-Provence' },
+    'brest':            { lat: 48.3904, lng: -4.4861, label: 'Brest'           },
+    'lemans':           { lat: 47.9960, lng: 0.1996,  label: 'Le Mans'         },
+    'amiens':           { lat: 49.8941, lng: 2.2958,  label: 'Amiens'          },
+    'tours':            { lat: 47.3941, lng: 0.6848,  label: 'Tours'           },
+    'limoges':          { lat: 45.8336, lng: 1.2611,  label: 'Limoges'         },
+    'clermontferrand':  { lat: 45.7772, lng: 3.0870,  label: 'Clermont-Ferrand'},
+    'villeurbanne':     { lat: 45.7665, lng: 4.8795,  label: 'Villeurbanne'    },
+    'besancon':         { lat: 47.2378, lng: 6.0241,  label: 'Besançon'        },
+    'orleans':          { lat: 47.9029, lng: 1.9039,  label: 'Orléans'         },
+    'metz':             { lat: 49.1193, lng: 6.1757,  label: 'Metz'            },
+    'rouen':            { lat: 49.4432, lng: 1.0993,  label: 'Rouen'           },
+    'mulhouse':         { lat: 47.7508, lng: 7.3359,  label: 'Mulhouse'        },
+    'perpignan':        { lat: 42.6886, lng: 2.8946,  label: 'Perpignan'       },
+    'caen':             { lat: 49.1829, lng: -0.3707, label: 'Caen'            },
+    'nancy':            { lat: 48.6921, lng: 6.1844,  label: 'Nancy'           },
+    'avignon':          { lat: 43.9493, lng: 4.8055,  label: 'Avignon'         },
+    'poitiers':         { lat: 46.5802, lng: 0.3404,  label: 'Poitiers'        },
+    'lacrochelle':      { lat: 46.1591, lng: -1.1520, label: 'La Rochelle'     },
+    'larochelle':       { lat: 46.1591, lng: -1.1520, label: 'La Rochelle'     },
+    'annecy':           { lat: 45.8992, lng: 6.1294,  label: 'Annecy'          },
+    // Hors France (cas fréquents de tournée européenne)
+    'berlin':           { lat: 52.5200, lng: 13.4050, label: 'Berlin'          },
+    'londres':          { lat: 51.5074, lng: -0.1278, label: 'Londres'         },
+    'london':           { lat: 51.5074, lng: -0.1278, label: 'London'          },
+    'amsterdam':        { lat: 52.3676, lng: 4.9041,  label: 'Amsterdam'       },
+    'bruxelles':        { lat: 50.8503, lng: 4.3517,  label: 'Bruxelles'       },
+    'barcelone':        { lat: 41.3851, lng: 2.1734,  label: 'Barcelone'       },
+    'barcelona':        { lat: 41.3851, lng: 2.1734,  label: 'Barcelona'       },
+    'madrid':           { lat: 40.4168, lng: -3.7038, label: 'Madrid'          },
+    'milan':            { lat: 45.4642, lng: 9.1900,  label: 'Milan'           },
+    'geneve':           { lat: 46.2044, lng: 6.1432,  label: 'Genève'          },
   };
 
   function normalize(s) {
@@ -1611,9 +1668,23 @@ function spawnVinylConfetti(originEl) {
     minZoom: 4,
   }).addTo(map);
 
+  // On garde les références pour pouvoir clear avant de rebuild (refresh dynamique)
+  let activeMarkers = [];
+  let activeRoute   = null;
+
+  function clearMarkers() {
+    activeMarkers.forEach(m => map.removeLayer(m));
+    activeMarkers = [];
+    if (activeRoute) { map.removeLayer(activeRoute); activeRoute = null; }
+  }
+
   function buildMarkers() {
+    clearMarkers();
     const showItems = Array.from(document.querySelectorAll('.show-item[data-date]'));
-    if (!showItems.length) return;
+    if (!showItems.length) {
+      if (countEl) countEl.textContent = '0';
+      return;
+    }
 
     const shows = showItems.map(el => {
       const cityText = (el.querySelector('.show-city')?.textContent || '').trim();
@@ -1621,19 +1692,45 @@ function spawnVinylConfetti(originEl) {
       const venue    = (el.querySelector('.show-venue')?.childNodes[0]?.textContent || '').trim();
       const date     = el.dataset.date;
       const isPast   = el.classList.contains('show-item--past') || new Date(date).getTime() < Date.now();
-      return { cityKey, cityText: cityText.split(',')[0].trim(), venue, date, isPast, el };
+      // Lat/lng custom depuis data-attributes (admin a renseigné manuellement)
+      const customLat = parseFloat(el.dataset.lat);
+      const customLng = parseFloat(el.dataset.lng);
+      const hasCustomCoords = !isNaN(customLat) && !isNaN(customLng);
+      return {
+        cityKey,
+        cityText: cityText.split(',')[0].trim(),
+        venue, date, isPast, el,
+        customLat: hasCustomCoords ? customLat : null,
+        customLng: hasCustomCoords ? customLng : null,
+      };
     });
 
-    // Dédoublonne, préfère upcoming
+    // Dédoublonne par ville, préfère upcoming sur past
     const uniqueByCity = new Map();
     shows.forEach(s => {
       const existing = uniqueByCity.get(s.cityKey);
       if (!existing) { uniqueByCity.set(s.cityKey, s); return; }
       if (existing.isPast && !s.isPast) uniqueByCity.set(s.cityKey, s);
     });
+
+    // Résout les coordonnées : custom > CITY_COORDS dict > skip si ni l'un ni l'autre
     const unique = Array.from(uniqueByCity.values())
-      .filter(s => CITY_COORDS[s.cityKey])
-      .map(s => ({ ...s, ...CITY_COORDS[s.cityKey] }));
+      .map(s => {
+        if (s.customLat != null && s.customLng != null) {
+          return { ...s, lat: s.customLat, lng: s.customLng, label: s.cityText };
+        }
+        const coord = CITY_COORDS[s.cityKey];
+        if (coord) return { ...s, ...coord };
+        // Ville inconnue ET pas de coords custom → on warn et on skip
+        console.warn(`[tour map] Ville "${s.cityText}" non reconnue. Renseigne lat/lng dans le panel admin pour l'afficher sur la carte.`);
+        return null;
+      })
+      .filter(Boolean);
+
+    if (!unique.length) {
+      if (countEl) countEl.textContent = '0';
+      return;
+    }
 
     const upcoming = unique
       .filter(s => !s.isPast)
@@ -1659,12 +1756,13 @@ function spawnVinylConfetti(originEl) {
       marker.on('click', () => {
         if (s.el) s.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
+      activeMarkers.push(marker);
     });
 
     // Route polyline entre upcoming dans l'ordre chrono
     if (upcoming.length >= 2) {
       const latLngs = upcoming.map(s => [s.lat, s.lng]);
-      const route = L.polyline(latLngs, {
+      activeRoute = L.polyline(latLngs, {
         color: '#FF5A00',
         weight: 2,
         opacity: 0.85,
@@ -1676,12 +1774,16 @@ function spawnVinylConfetti(originEl) {
 
     if (countEl) countEl.textContent = upcoming.length || unique.length;
 
-    // Auto-fit aux markers avec un peu de padding
+    // Auto-fit aux markers avec padding
     if (unique.length > 0) {
       const group = L.featureGroup(unique.map(s => L.marker([s.lat, s.lng])));
       map.fitBounds(group.getBounds(), { padding: [40, 40], maxZoom: 6.5 });
     }
   }
+
+  // Expose globalement pour permettre à loadShows() de rafraîchir la carte
+  // après injection dynamique des show-items depuis shows.json
+  window._refreshTourMap = buildMarkers;
 
   function showPopup(s) {
     if (!popup) return;

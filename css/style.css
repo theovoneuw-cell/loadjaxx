@@ -1861,6 +1861,13 @@ h1, h2, h3 {
   transition: letter-spacing .3s ease;
 }
 .show-item:hover .show-venue { letter-spacing: 0; }
+/* Heure du show — petit accent orange dans la ligne ville */
+.show-time {
+  color: var(--orange);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-left: 2px;
+}
 .show-city {
   font-size: 12px;
   color: var(--muted);

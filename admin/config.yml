@@ -47,6 +47,12 @@ collections:
                 date_format: "YYYY-MM-DD"
                 time_format: false
                 picker_utc: false
+              - name: time
+                label: "Heure de début"
+                widget: string
+                required: false
+                default: "22h00"
+                hint: "Format libre : '22h00', '21h30', 'TBA'…"
               - name: venue
                 label: "Lieu (club / festival)"
                 widget: string
@@ -54,11 +60,23 @@ collections:
               - name: city
                 label: "Ville"
                 widget: string
-                hint: "Ex: Paris"
+                hint: "Ex: Paris, Lyon, Marseille… (positionné automatiquement sur la carte si ville française connue)"
               - name: country
                 label: "Pays"
                 widget: string
                 default: "France"
+              - name: lat
+                label: "Latitude (optionnel)"
+                widget: number
+                required: false
+                value_type: "float"
+                hint: "Laisse vide si la ville est reconnue automatiquement. Remplis seulement pour les lieux exotiques ou les festivals isolés."
+              - name: lng
+                label: "Longitude (optionnel)"
+                widget: number
+                required: false
+                value_type: "float"
+                hint: "Idem latitude"
               - name: sold_out
                 label: "Sold Out ?"
                 widget: boolean

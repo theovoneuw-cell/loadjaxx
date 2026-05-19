@@ -1,12 +1,64 @@
 {
   "shows": [
     {
+      "date": "2026-05-22",
+      "time": "22h00",
+      "venue": "LE FIZZ",
+      "city": "Montpellier",
       "country": "France",
       "sold_out": false,
-      "link_label": "",
-      "date": "2026-05-22",
-      "venue": "LE FIZZ",
-      "city": "Montpellier"
+      "link": "",
+      "link_label": ""
+    },
+    {
+      "date": "2026-06-14",
+      "time": "23h00",
+      "venue": "Glow Up",
+      "city": "Paris",
+      "country": "France",
+      "sold_out": true,
+      "link": "https://linktr.ee/loadjaxx",
+      "link_label": "Billets"
+    },
+    {
+      "date": "2026-07-04",
+      "time": "22h30",
+      "venue": "Studio M",
+      "city": "Montpellier",
+      "country": "France",
+      "sold_out": false,
+      "link": "",
+      "link_label": "Infos"
+    },
+    {
+      "date": "2026-08-22",
+      "time": "21h00",
+      "venue": "Warehouse Festival",
+      "city": "Marseille",
+      "country": "France",
+      "sold_out": false,
+      "link": "",
+      "link_label": "Infos"
+    },
+    {
+      "date": "2026-09-05",
+      "time": "22h00",
+      "venue": "Le Réservoir",
+      "city": "Lyon",
+      "country": "France",
+      "sold_out": false,
+      "link": "",
+      "link_label": "Infos"
+    },
+    {
+      "date": "2025-11-15",
+      "time": "23h30",
+      "venue": "Nuits Sonores",
+      "city": "Bordeaux",
+      "country": "France",
+      "sold_out": false,
+      "link": "https://linktr.ee/loadjaxx",
+      "link_label": "Replay"
     }
   ]
 }
