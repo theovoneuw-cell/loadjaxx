@@ -678,18 +678,15 @@ h1, h2, h3 {
   font-weight: 800;
 }
 
-/* ─── Hero v2 : carte réseaux & streaming (sous le next-show) ─── */
+/* ─── Hero v2 : cartes Plateformes + Réseaux (sous le next-show) ─── */
 .hero-social-card {
   position: absolute;
-  top: 358px;         /* ~30px sous le next-show pour respirer */
   left: 60px;
   z-index: 3;
-  width: 360px;
-  max-width: calc(100vw - 80px);
-  padding: 16px 20px 18px;
+  padding: 14px 18px 16px;
   background: rgba(18, 18, 18, 0.62);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;          /* plus arrondi pour matcher le ton moderne */
+  border-radius: 8px;           /* aligné avec next-show pour cohérence */
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4);
@@ -698,6 +695,36 @@ h1, h2, h3 {
 .hero-social-card:hover {
   border-color: rgba(255, 90, 0, 0.18);
   background: rgba(20, 20, 20, 0.7);
+}
+
+/* Cards Plateformes + Réseaux — TOUTES de même largeur que next-show pour
+   créer une colonne verticale cohérente */
+.hero-social-card--platforms {
+  top: 348px;
+  width: 260px;
+}
+.hero-social-card--platforms .hero-social-grid {
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.hero-social-card--socials {
+  top: 472px;
+  width: 260px;
+}
+.hero-social-card--socials .hero-social-grid {
+  justify-content: center;
+  gap: 28px;
+}
+/* Icônes légèrement plus grandes dans la Réseaux pour combler l'espace
+   et leur donner du poids (2 plateformes = focus important) */
+.hero-social-card--socials .hero-social-link {
+  width: 46px;
+  height: 46px;
+}
+.hero-social-card--socials .hero-social-link svg {
+  width: 22px;
+  height: 22px;
 }
 .hero-social-head {
   display: flex;
@@ -718,34 +745,29 @@ h1, h2, h3 {
   color: var(--orange);
   line-height: 1;
 }
-/* EQ bars à côté du titre — signature musique, mise en valeur */
+/* EQ bars — indicateur audio iconique, free-standing */
 .hero-social-eq {
   display: inline-flex;
   align-items: flex-end;
   gap: 3px;
-  height: 14px;
+  height: 13px;
   margin-left: auto;
-  padding: 4px 7px;
-  background: rgba(255, 90, 0, 0.1);
-  border: 1px solid rgba(255, 90, 0, 0.22);
-  border-radius: 100px;
-  box-shadow: 0 0 12px rgba(255, 90, 0, 0.15), inset 0 0 6px rgba(255, 90, 0, 0.05);
 }
 .hero-social-eq i {
   display: block;
-  width: 2.5px;
+  width: 2px;
   background: var(--orange);
   border-radius: 2px;
   animation: heroSocialEq 0.95s ease-in-out infinite;
-  box-shadow: 0 0 6px rgba(255, 90, 0, 0.9), 0 0 2px rgba(255, 90, 0, 1);
+  box-shadow: 0 0 8px rgba(255, 90, 0, 0.85);
   transform-origin: bottom center;
 }
-.hero-social-eq i:nth-child(1) { height: 100%; animation-delay: 0s; }
+.hero-social-eq i:nth-child(1) { height: 100%; animation-delay: 0s;   }
 .hero-social-eq i:nth-child(2) { height: 100%; animation-delay: .18s; }
 .hero-social-eq i:nth-child(3) { height: 100%; animation-delay: .36s; }
 @keyframes heroSocialEq {
-  0%, 100% { transform: scaleY(0.3); opacity: 0.7; }
-  50%      { transform: scaleY(1);   opacity: 1; }
+  0%, 100% { transform: scaleY(0.25); opacity: 0.55; }
+  50%      { transform: scaleY(1);    opacity: 1; }
 }
 
 .hero-social-grid {

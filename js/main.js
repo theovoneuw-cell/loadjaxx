@@ -443,8 +443,8 @@ function triggerHeroAnimations() {
   tl
     .to('.hero-status',       { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' }, 0.2)
     .to('.hero-next-card',    { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.35)
-    .to('.hero-social-card',  { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out',
-        onStart: () => document.querySelector('.hero-social-card')?.classList.add('is-in')
+    .to('.hero-social-card',  { opacity: 1, y: 0, duration: 0.6, stagger: 0.12, ease: 'power3.out',
+        onStart: () => document.querySelectorAll('.hero-social-card').forEach(c => c.classList.add('is-in'))
       }, 0.5)
     .to('.hero-tagline',    { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' }, 0.45)
     .to('.hero-name',       { opacity: 1, y: 0, duration: 1.0, ease: 'power4.out' }, 0.55)
