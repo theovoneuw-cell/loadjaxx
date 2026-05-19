@@ -2,7 +2,7 @@
   "shows": [
     {
       "country": "France",
-      "sold_out": true,
+      "sold_out": false,
       "link_label": "",
       "date": "2026-05-22",
       "venue": "LE FIZZ",
