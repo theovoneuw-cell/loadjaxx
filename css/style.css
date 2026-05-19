@@ -2441,7 +2441,20 @@ h1, h2, h3 {
 }
 
 /* ── CONTACT ─────────────────────────────────────────────── */
-#contact { background: var(--bg2); padding: 140px 0; position: relative; overflow: hidden; }
+#contact {
+  background: var(--bg2);
+  padding: 60px 0 120px;        /* réduit top : 140 → 60 pour coller à la section EPK noire au-dessus */
+  position: relative;
+  overflow: hidden;
+}
+/* Bordure de transition douce entre EPK (noir) et contact (clair) */
+#contact::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 90, 0, 0.4) 50%, transparent 100%);
+}
 
 .contact-grid {
   display: grid;
@@ -2821,67 +2834,110 @@ body.menu-open { overflow: hidden; }
   }
   .hero-status-line2 { display: inline; }
 
-  /* Next-show card COMPACTE */
+  /* Next-show ULTRA compact : un seul rang horizontal — discret mais lisible */
   .hero-next-card {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     position: relative !important;
     top: auto !important; left: auto !important;
     width: 100%;
     max-width: none;
     min-width: 0;
-    padding: 12px 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
   }
-  .hero-next-label { font-size: 8px; letter-spacing: 2px; margin-bottom: 6px; }
-  .hero-next-day { font-size: 28px; }
-  .hero-next-mon { font-size: 10px; letter-spacing: 1.6px; }
-  .hero-next-meta { font-size: 10px; padding-top: 8px; margin-top: 2px; }
+  .hero-next-label {
+    display: none; /* "⦿ Next show" pas nécessaire — le format date parle de lui-même */
+  }
+  .hero-next-date {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  .hero-next-day { font-size: 22px; line-height: 1; }
+  .hero-next-mon { font-size: 9px; letter-spacing: 1.4px; }
+  .hero-next-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0 0 0 12px;
+    border-top: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 10px;
+    flex: 1;
+    justify-content: space-between;
+  }
+  .hero-next-city { font-size: 10px; letter-spacing: 0.5px; }
+  .hero-next-countdown { font-size: 11px; }
 
-  /* Plateformes + Réseaux — visuellement MERGED en 1 card */
+  /* Plateformes + Réseaux — 1 card mergée ULTRA-compacte */
   .hero-social-card,
   .hero-social-card--platforms,
   .hero-social-card--socials {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     position: relative !important;
     top: auto !important; left: auto !important;
     width: 100%;
     max-width: none;
-    padding: 10px 14px 12px;
+    padding: 8px 14px;
+    border-radius: 10px;
   }
-  /* Plateformes : coin inférieur droit/gauche carré, pas de margin bottom */
   .hero-social-card--platforms {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
-  /* Réseaux : coin supérieur carré, collé au bloc plateformes */
   .hero-social-card--socials {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     border-top: none;
-    margin-top: -12px; /* annule le gap entre les 2 cards */
+    margin-top: -12px;
   }
-  /* Header compact */
-  .hero-social-card .hero-social-head { margin-bottom: 10px; gap: 6px; }
-  .hero-social-title { font-size: 8px; letter-spacing: 2px; }
-  /* Icônes plus compactes */
-  .hero-social-card .hero-social-link { width: 36px; height: 36px; }
-  .hero-social-card .hero-social-link svg { width: 17px; height: 17px; }
-  /* Réseaux : icônes alignées à gauche, plus compactes (pas 46px) */
+  /* Header compact horizontal : label à gauche, EQ à droite */
+  .hero-social-card .hero-social-head {
+    margin: 0;
+    gap: 5px;
+    flex-shrink: 0;
+    min-width: 76px;
+  }
+  .hero-social-tag { font-size: 7px; }
+  .hero-social-title { font-size: 8px; letter-spacing: 1.5px; }
+  .hero-social-eq {
+    display: none; /* trop chargé sur petit, on retire l'EQ animé */
+  }
+  /* Grille d'icônes : prend tout l'espace dispo, distribuées */
+  .hero-social-card .hero-social-grid {
+    flex: 1;
+    justify-content: space-around;
+    gap: 4px;
+  }
+  /* Icônes 30px (au lieu de 36/46) — discret mais tappable (zone hit étendue) */
+  .hero-social-card .hero-social-link {
+    width: 30px;
+    height: 30px;
+  }
+  .hero-social-card .hero-social-link svg {
+    width: 14px;
+    height: 14px;
+  }
   .hero-social-card--socials .hero-social-grid {
     justify-content: flex-start;
-    gap: 14px;
+    gap: 10px;
   }
   .hero-social-card--socials .hero-social-link {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
   }
   .hero-social-card--socials .hero-social-link svg {
-    width: 17px;
-    height: 17px;
+    width: 14px;
+    height: 14px;
   }
-  /* EQ plus discret dans les cards */
-  .hero-social-eq { height: 10px; gap: 2px; }
-  .hero-social-eq i { width: 2px; }
 
   /* Tagline cachée sur mobile (redondante avec le status badge déjà au-dessus) */
   .hero-tagline { display: none; }
@@ -3040,28 +3096,34 @@ body.menu-open { overflow: hidden; }
   #releases { padding: 90px 0; }
   .releases-intro h2 { font-size: clamp(34px, 9vw, 50px); }
 
-  /* Feat card identique aux autres : cover carré + bandeau .release-info dessous
-     L'overlay .release-feat-info est masqué, on utilise la structure standard */
+  /* Feat card identique aux autres : cover carré + bandeau dessous, sans gap */
   .release-card--feat {
     grid-column: span 1 !important;
     grid-row: span 1 !important;
     aspect-ratio: auto !important;
     display: flex !important;
     flex-direction: column !important;
-    background: var(--card);
+    background: #0a0a0a;            /* fond uniforme — pas de seam entre cover et info */
     border-radius: 12px;
     overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
   }
   .release-card--feat .release-cover {
     position: relative !important;
     inset: auto !important;
     aspect-ratio: 1 / 1 !important;
     width: 100%;
+    border-radius: 0 !important;    /* pas de coin arrondi interne qui crée la bordure visible */
+    display: block;
   }
-  /* Masque l'overlay feat (titre dans l'image) sur mobile,
-     on affiche le bandeau .release-info standard à la place (en dessous) */
+  /* Masque l'overlay feat, affiche le bandeau .release-info à la place (collé sans gap) */
   .release-card--feat .release-feat-info { display: none !important; }
-  .release-card--feat .release-info { display: block !important; }
+  .release-card--feat .release-info {
+    display: block !important;
+    background: #0a0a0a;
+    margin: 0;
+    border-radius: 0;
+  }
 
   /* Cards régulières — assurer cohérence visuelle */
   .release-info { padding: 10px 12px 12px; }
@@ -3173,10 +3235,10 @@ body.menu-open { overflow: hidden; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
-  padding: 28px 32px 36px;
-  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 18px;
+  padding: 24px 28px 28px;
+  background: linear-gradient(135deg, #1f1f1f 0%, #2a2a2a 70%, #2d2520 100%);
+  border: 1px solid rgba(255, 90, 0, 0.12);
   border-radius: 18px;
   overflow: hidden;
 }
@@ -3215,25 +3277,28 @@ body.menu-open { overflow: hidden; }
 /* Conteneur Leaflet — full-width, hauteur fixe, coins arrondis */
 .shows-map-leaflet {
   width: 100%;
-  height: 420px;
+  height: 360px;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
   z-index: 1;
-  background: #0d0d0d;
-  cursor: grab;
+  background: #2a2520;
+  cursor: default;
 }
-.shows-map-leaflet:active { cursor: grabbing; }
 
-/* Filtre orange/noir sur les tuiles Carto Dark */
+/* Filtre tuiles : plus claire, ton chaud orange, lisible */
 .shows-map-leaflet .leaflet-tile-pane {
   filter:
     grayscale(1)
-    sepia(0.6)
-    hue-rotate(-15deg)
-    saturate(1.3)
-    brightness(0.55)
-    contrast(1.05);
+    sepia(0.7)
+    hue-rotate(-12deg)
+    saturate(1.5)
+    brightness(0.92)
+    contrast(0.95);
+}
+
+@media (max-width: 760px) {
+  .shows-map-leaflet { height: 260px; }
 }
 /* Plus fond noir derrière les tuiles pour les coutures éventuelles */
 .shows-map-leaflet .leaflet-container {

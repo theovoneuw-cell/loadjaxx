@@ -1510,16 +1510,17 @@ function spawnVinylConfetti(originEl) {
   }
 
   // Init Leaflet centré sur la France
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
   const map = L.map(mapEl, {
-    zoomControl: false,        // ajouté manuellement pour le placer bottom-right
+    zoomControl: false,
     attributionControl: false,
-    scrollWheelZoom: false,    // off : pas de dézoom au scroll page
-    dragging: true,
-    doubleClickZoom: false,    // off pour rester cohérent (zoom uniquement +/-)
+    scrollWheelZoom: false,
+    dragging: !isTouchDevice,   // OFF sur mobile : plus de pan accidentel pendant le scroll page
+    doubleClickZoom: false,
     boxZoom: false,
     keyboard: false,
-    tap: true,
-    touchZoom: true,           // garde le pinch-zoom mobile
+    tap: false,                  // tap-to-zoom désactivé pour éviter conflits avec scroll
+    touchZoom: true,             // pinch 2 doigts pour zoomer
   }).setView([46.6, 2.8], 5.5);
 
   // Boutons de zoom positionnés en bas à droite
