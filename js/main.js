@@ -1421,7 +1421,7 @@ function spawnVinylConfetti(originEl) {
 
   // Init Leaflet centré sur la France
   const map = L.map(mapEl, {
-    zoomControl: true,
+    zoomControl: false, // ajouté manuellement pour le placer bottom-right
     attributionControl: false,
     scrollWheelZoom: true,
     dragging: true,
@@ -1430,6 +1430,9 @@ function spawnVinylConfetti(originEl) {
     keyboard: false,
     tap: true,
   }).setView([46.6, 2.8], 5.5);
+
+  // Boutons de zoom positionnés en bas à droite
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
 
   // Tuiles CartoDB Dark Matter (fond sombre, CSS filter va ajouter le orange)
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
