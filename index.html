@@ -13,50 +13,6 @@
 </head>
 <body>
 
-  <!-- CÂBLES BACKGROUND : vrais jacks noir + orange, scrollent avec la page,
-       convergent vers la console (qui est en bas du document) -->
-  <svg class="site-cables-bg" id="bgCablesSvg" viewBox="0 0 1440 5000" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="bgCableSheath" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%"  stop-color="#1a1a1a"/>
-        <stop offset="50%" stop-color="#2a2a2a"/>
-        <stop offset="100%" stop-color="#0d0d0d"/>
-      </linearGradient>
-      <!-- Blur SVG interne : beaucoup plus performant que filter:blur en CSS -->
-      <filter id="bgCablesBlur" x="-10%" y="-10%" width="120%" height="120%">
-        <feGaussianBlur stdDeviation="2.5"/>
-      </filter>
-    </defs>
-    <g filter="url(#bgCablesBlur)">
-    <!-- Câbles longs qui partent du haut/des côtés et convergent vers le bas-droite
-         (où la console contact se trouvera quand on scroll) -->
-    <g class="bg-cable">
-      <path class="cable-sheath" d="M -80 200 C 100 800, 350 2200, 700 3500 S 1080 4500, 1180 4900"/>
-      <path class="cable-signal" d="M -80 200 C 100 800, 350 2200, 700 3500 S 1080 4500, 1180 4900"/>
-    </g>
-    <g class="bg-cable">
-      <path class="cable-sheath" d="M 350 -50 C 320 800, 480 2000, 700 3200 S 1000 4400, 1160 4910"/>
-      <path class="cable-signal" d="M 350 -50 C 320 800, 480 2000, 700 3200 S 1000 4400, 1160 4910"/>
-    </g>
-    <g class="bg-cable">
-      <path class="cable-sheath" d="M 1500 100 C 1380 900, 1180 2400, 1000 3500 S 1100 4600, 1200 4920"/>
-      <path class="cable-signal" d="M 1500 100 C 1380 900, 1180 2400, 1000 3500 S 1100 4600, 1200 4920"/>
-    </g>
-    <g class="bg-cable">
-      <path class="cable-sheath" d="M 1480 1500 C 1300 2100, 1100 2800, 1040 3700 S 1140 4650, 1220 4930"/>
-      <path class="cable-signal" d="M 1480 1500 C 1300 2100, 1100 2800, 1040 3700 S 1140 4650, 1220 4930"/>
-    </g>
-    <g class="bg-cable">
-      <path class="cable-sheath" d="M 900 -60 C 940 1300, 900 2600, 920 3700 S 1060 4700, 1180 4920"/>
-      <path class="cable-signal" d="M 900 -60 C 940 1300, 900 2600, 920 3700 S 1060 4700, 1180 4920"/>
-    </g>
-    <g class="bg-cable">
-      <path class="cable-sheath" d="M -60 2400 C 200 2900, 500 3400, 780 3900 S 1080 4700, 1200 4920"/>
-      <path class="cable-signal" d="M -60 2400 C 200 2900, 500 3400, 780 3900 S 1080 4700, 1200 4920"/>
-    </g>
-    </g>
-  </svg>
-
   <!-- LOADER -->
   <div id="loader">
     <div class="loader-panel loader-panel-top"></div>
@@ -664,62 +620,6 @@
 
   <!-- CONTACT -->
   <section id="contact">
-    <!-- Câbles audio : vrais jacks 3.5mm (gaine noire + signal orange) -->
-    <svg class="contact-cables" viewBox="0 0 1200 600" preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="cableSheath" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"  stop-color="#1a1a1a"/>
-          <stop offset="50%" stop-color="#2c2c2c"/>
-          <stop offset="100%" stop-color="#0d0d0d"/>
-        </linearGradient>
-        <radialGradient id="plugMetal" cx="35%" cy="35%" r="65%">
-          <stop offset="0%"   stop-color="#cccccc"/>
-          <stop offset="50%"  stop-color="#5a5a5a"/>
-          <stop offset="100%" stop-color="#1a1a1a"/>
-        </radialGradient>
-        <radialGradient id="plugTipOrange" cx="35%" cy="35%" r="65%">
-          <stop offset="0%"   stop-color="#FFAA66"/>
-          <stop offset="55%"  stop-color="#FF6B1A"/>
-          <stop offset="100%" stop-color="#a13000"/>
-        </radialGradient>
-      </defs>
-      <!-- 4 câbles : chaque câble = gaine noire + signal orange dashé par-dessus -->
-      <g class="contact-cable">
-        <path class="cable-sheath" d="M 80 -20 C 80 180, 720 100, 720 460"/>
-        <path class="cable-signal" d="M 80 -20 C 80 180, 720 100, 720 460"/>
-      </g>
-      <g class="contact-cable">
-        <path class="cable-sheath" d="M 400 -20 C 400 80, 820 200, 820 460"/>
-        <path class="cable-signal" d="M 400 -20 C 400 80, 820 200, 820 460"/>
-      </g>
-      <g class="contact-cable">
-        <path class="cable-sheath" d="M 1100 -20 C 1100 150, 920 300, 920 460"/>
-        <path class="cable-signal" d="M 1100 -20 C 1100 150, 920 300, 920 460"/>
-      </g>
-      <g class="contact-cable">
-        <path class="cable-sheath" d="M 1220 60 C 1100 280, 1020 380, 1020 460"/>
-        <path class="cable-signal" d="M 1220 60 C 1100 280, 1020 380, 1020 460"/>
-      </g>
-      <!-- Plugs jack 3.5mm : sleeve métal + base noire + tip orange -->
-      <g class="contact-cable-plugs">
-        <!-- Jack 1 -->
-        <rect x="710" y="455" width="20" height="34" rx="4" class="plug-sleeve"/>
-        <circle cx="720"  cy="470" r="6.5" class="plug-base"/>
-        <circle cx="720"  cy="470" r="3.5" class="plug-tip"/>
-        <!-- Jack 2 -->
-        <rect x="810" y="455" width="20" height="34" rx="4" class="plug-sleeve"/>
-        <circle cx="820"  cy="470" r="6.5" class="plug-base"/>
-        <circle cx="820"  cy="470" r="3.5" class="plug-tip"/>
-        <!-- Jack 3 -->
-        <rect x="910" y="455" width="20" height="34" rx="4" class="plug-sleeve"/>
-        <circle cx="920"  cy="470" r="6.5" class="plug-base"/>
-        <circle cx="920"  cy="470" r="3.5" class="plug-tip"/>
-        <!-- Jack 4 -->
-        <rect x="1010" y="455" width="20" height="34" rx="4" class="plug-sleeve"/>
-        <circle cx="1020" cy="470" r="6.5" class="plug-base"/>
-        <circle cx="1020" cy="470" r="3.5" class="plug-tip"/>
-      </g>
-    </svg>
     <div class="container">
       <div class="contact-grid">
         <div class="contact-left">
@@ -739,14 +639,6 @@
         </div>
         <form class="contact-form mixer-form" name="contact" method="POST" data-netlify="true">
           <input type="hidden" name="form-name" value="contact" />
-
-          <!-- Jacks d'entrée 3.5mm : reçoivent les câbles audio -->
-          <div class="mixer-jacks" aria-hidden="true">
-            <span class="mixer-jack"><span class="mixer-jack-label">IN 01</span></span>
-            <span class="mixer-jack"><span class="mixer-jack-label">IN 02</span></span>
-            <span class="mixer-jack"><span class="mixer-jack-label">IN 03</span></span>
-            <span class="mixer-jack"><span class="mixer-jack-label">IN 04</span></span>
-          </div>
 
           <div class="mixer-header">
             <span class="mixer-brand">LDJX · BOOKING CONSOLE</span>
