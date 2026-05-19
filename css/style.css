@@ -2478,6 +2478,217 @@ footer {
 .footer-links a:hover { color: var(--orange); }
 
 
+/* ═══════════════════════════════════════════════════════════
+   MOBILE MENU — overlay full-screen éditorial
+   ═══════════════════════════════════════════════════════════ */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a0800 70%, #2a1000 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 28px 32px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-24px);
+  transition: opacity .4s ease, transform .5s cubic-bezier(.23,1,.32,1);
+}
+.mobile-menu.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.mobile-menu::before {
+  /* Pattern de grille subtil en arrière-plan */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 90, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 90, 0, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.mobile-menu::after {
+  /* Halo orange en bas-droite */
+  content: '';
+  position: absolute;
+  bottom: -120px;
+  right: -120px;
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(255, 90, 0, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+  filter: blur(20px);
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.mobile-menu-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--orange);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mobile-menu-close {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .25s, border-color .25s, transform .35s cubic-bezier(.23,1,.32,1);
+}
+.mobile-menu-close:hover,
+.mobile-menu-close:active {
+  background: var(--orange);
+  border-color: var(--orange);
+  transform: rotate(90deg);
+}
+.mobile-menu-close svg { width: 18px; height: 18px; }
+
+.mobile-menu-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
+}
+.mobile-menu-link {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity .5s cubic-bezier(.23,1,.32,1), transform .5s cubic-bezier(.23,1,.32,1), color .25s, border-color .25s;
+}
+.mobile-menu.open .mobile-menu-link { opacity: 1; transform: translateX(0); }
+.mobile-menu.open .mobile-menu-link:nth-child(1) { transition-delay: 0.15s; }
+.mobile-menu.open .mobile-menu-link:nth-child(2) { transition-delay: 0.22s; }
+.mobile-menu.open .mobile-menu-link:nth-child(3) { transition-delay: 0.29s; }
+.mobile-menu.open .mobile-menu-link:nth-child(4) { transition-delay: 0.36s; }
+.mobile-menu.open .mobile-menu-link:nth-child(5) { transition-delay: 0.43s; }
+
+.mobile-menu-num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--orange);
+  font-variant-numeric: tabular-nums;
+  min-width: 24px;
+}
+.mobile-menu-text {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.mobile-menu-link:active,
+.mobile-menu-link:hover {
+  color: var(--orange);
+  border-bottom-color: var(--orange);
+}
+.mobile-menu-link--cta .mobile-menu-text {
+  color: var(--orange);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.mobile-menu-arrow {
+  display: inline-block;
+  transition: transform .3s cubic-bezier(.23,1,.32,1);
+}
+.mobile-menu-link--cta:active .mobile-menu-arrow,
+.mobile-menu-link--cta:hover .mobile-menu-arrow {
+  transform: translateX(6px);
+}
+
+.mobile-menu-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 1;
+}
+.mobile-menu-socials {
+  display: flex;
+  gap: 10px;
+}
+.mobile-menu-socials a {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: background .25s, border-color .25s, color .25s;
+}
+.mobile-menu-socials a:active,
+.mobile-menu-socials a:hover {
+  background: var(--orange);
+  border-color: var(--orange);
+}
+.mobile-menu-socials svg { width: 18px; height: 18px; }
+.mobile-menu-credit {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Burger : transformation hamburger → X quand le menu est ouvert */
+body.menu-open .nav-burger span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+  background: #fff;
+}
+body.menu-open .nav-burger span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+body.menu-open .nav-burger span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+  background: #fff;
+}
+.nav-burger span {
+  transition: transform .4s cubic-bezier(.23,1,.32,1), opacity .3s ease, background .3s;
+}
+
+/* Scroll bloqué quand le menu est ouvert */
+body.menu-open { overflow: hidden; }
+
+@media (min-width: 681px) {
+  .mobile-menu { display: none; }
+}
+
 /* ── MOBILE ──────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .about-grid { grid-template-columns: 1fr; gap: 60px; }
@@ -2512,51 +2723,106 @@ footer {
   .container { padding: 0 20px; }
   section { padding: 90px 0; }
   .nav-inner { padding: 0 20px; }
-  .nav-burger { display: flex; }
-  .nav-close {
-    display: flex; align-self: flex-end;
-    background: none; border: none; cursor: pointer;
-    color: var(--text); padding: 8px; margin-bottom: 20px;
-  }
-  .nav-close svg { width: 24px; height: 24px; }
-  .nav-links {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(250,250,250,0.98);
-    backdrop-filter: blur(20px);
+  .nav-burger { display: flex; z-index: 10001; position: relative; }
+  /* Cache les vieux liens nav inline — on utilise #mobileMenu maintenant */
+  .nav-links { display: none !important; }
+  /* ── HERO MOBILE : layout vertical en flex column, tout visible ─── */
+  #hero {
+    min-height: auto;
+    height: auto;
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 28px;
-    z-index: 9999;
+    align-items: stretch;
+    padding: 96px 24px 60px;
+    overflow: visible;
+    gap: 18px;
   }
-  .nav-links.open { display: flex; }
-  .nav-links a { font-size: 22px; font-weight: 700; color: var(--text); }
-  #hero { align-items: flex-end; }
-  .hero-content { padding: 0 24px 52px; gap: 24px; }
-  .hero-name { font-size: clamp(58px, 18vw, 100px); }
-  .hero-cta { gap: 20px; }
-  /* Hero v2 — masque les éléments lourds sur mobile pour garder le punch du titre */
-  .hero-status { top: 86px; left: 24px; }
-  .hero-status-line2 { display: none; }
-  .hero-next-card, .hero-social-card { display: none; }
-  .hero-scroll-hint { display: none; }
-  .hero-tagline { font-size: 9px; letter-spacing: 1.5px; }
-  .hero-bottom { gap: 18px; }
-  .hero-stats { gap: 14px; }
-  .hero-stat b { font-size: 16px; }
-  .hero-stat span { font-size: 8px; }
-  .hero-bg-orb { filter: blur(60px); opacity: 0.25; }
-  /* Sur mobile : photo en pleine largeur mais très fade en bas pour
-     laisser le titre lisible */
+  .hero-content {
+    padding: 0;
+    gap: 22px;
+    width: 100%;
+    align-items: stretch;
+    order: 2; /* après status, avant les cards */
+  }
+  /* Order des éléments en mobile : status → name+stats → next-show → platforms → réseaux */
+  .hero-status        { order: 1; }
+  .hero-next-card     { order: 3; }
+  .hero-social-card--platforms { order: 4; }
+  .hero-social-card--socials   { order: 5; }
+  .hero-name { font-size: clamp(58px, 18vw, 100px); text-align: left; }
+  .hero-cta { gap: 14px; flex-wrap: wrap; }
+  /* Photo plein écran centrée sur le visage du DJ (top-right de l'image source)
+     → background-position calibrée pour montrer la tête */
   .hero-photo {
     width: 100%;
-    background-position: center top;
-    mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,0.6) 35%, transparent 70%);
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,0.6) 35%, transparent 70%);
-    opacity: 0.6;
+    height: 65vh;             /* Photo occupe les 2/3 supérieurs */
+    top: 0;
+    background-position: 70% 25%; /* face DJ visible — sujet en haut-droite de la source */
+    mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgba(0,0,0,0.4) 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgba(0,0,0,0.4) 80%, transparent 100%);
+    opacity: 0.85;
   }
-  .releases-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* Status badge top-left au-dessus du nom */
+  .hero-status {
+    position: relative;
+    top: auto; left: auto;
+    margin-bottom: 8px;
+  }
+  .hero-status-line2 { display: inline; }
+
+  /* Next-show card en flow vertical (pas absolute) */
+  .hero-next-card {
+    display: block;
+    position: relative;
+    top: auto; left: auto;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  /* Cards Plateformes + Réseaux en flow */
+  .hero-social-card,
+  .hero-social-card--platforms,
+  .hero-social-card--socials {
+    display: block;
+    position: relative;
+    top: auto; left: auto;
+    width: 100%;
+    max-width: none;
+  }
+  .hero-social-card--socials .hero-social-grid {
+    justify-content: flex-start;
+    gap: 18px;
+  }
+
+  /* Stats et bottom restent en flow vertical */
+  .hero-tagline { font-size: 9px; letter-spacing: 1.5px; }
+  .hero-bottom { gap: 18px; flex-direction: column; align-items: flex-start; }
+  .hero-stats { gap: 14px; flex-wrap: wrap; }
+  .hero-stat b { font-size: 17px; }
+  .hero-stat span { font-size: 9px; }
+  .hero-bg-orb { filter: blur(60px); opacity: 0.25; }
+
+  /* Scroll hint caché sur mobile (pas de space pour le mettre) */
+  .hero-scroll-hint { display: none; }
+
+  /* Waveform canvas plus compact */
+  #heroWave { height: 100px; }
+  /* Releases mobile : 6 cards max, 2 colonnes, bigger touch targets */
+  .releases-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .release-card:nth-child(n+7) { display: none !important; }
+  /* Sur mobile la card "feat" n'est plus spannée 2 cols pour rester en grille régulière */
+  .release-card--feat { grid-column: span 1 !important; grid-row: span 1 !important; aspect-ratio: 1 / 1; }
+  .release-card--feat .release-cover { aspect-ratio: 1 / 1; }
+  .release-card--feat .release-feat-title { font-size: 14px; }
+  .release-card--feat .release-feat-sub { font-size: 10px; }
+  /* "Voir tout sur Linktree" reste cliquable mais compact */
+  .releases-more { margin-top: 28px; }
+  /* Filter pills compactes */
+  .releases-filters { gap: 6px; margin-bottom: 22px; flex-wrap: wrap; }
+  .releases-filter { padding: 7px 12px; font-size: 12px; }
+  .releases-filter-count { min-width: 18px; height: 18px; font-size: 9px; padding: 0 5px; }
   .show-item { padding: 20px 0; }
   .show-item-inner { flex-wrap: wrap; gap: 16px; padding: 16px 20px; }
   .show-num { display: none; }
@@ -2571,9 +2837,43 @@ footer {
   .contact-form { padding: 24px; }
 }
 
+/* ── Petits téléphones (≤375px : iPhone SE, mini) ──────── */
 @media (max-width: 420px) {
-  .hero-name { font-size: clamp(54px, 18vw, 90px); }
-  .releases-grid { grid-template-columns: 1fr; }
+  .hero-name { font-size: clamp(48px, 16vw, 76px); letter-spacing: -0.04em; }
+  .hero-content { padding: 0; gap: 18px; }
+  #hero { padding: 92px 18px 50px; }
+  .releases-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .release-card { font-size: 11px; }
+  .hero-stat b { font-size: 15px; }
+  .hero-btn-play { padding: 12px 22px; font-size: 12px; }
+  /* Menu mobile sur petites tailles */
+  .mobile-menu-text { font-size: 26px; }
+  .mobile-menu { padding: 18px 22px 26px; }
+  /* About stats */
+  .about-stats { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .stat-num { font-size: 30px; }
+  /* Featured show card huge day */
+  .huge-day { font-size: 72px; }
+  /* Mixer form padding réduit */
+  .mixer-form { padding: 20px 18px 22px; }
+  /* Filter pills wrap propre */
+  .releases-filter { padding: 6px 10px; font-size: 11px; }
+}
+
+/* ── Tablette portrait (681px–900px) : layout intermédiaire ─── */
+@media (min-width: 681px) and (max-width: 900px) {
+  /* Releases : 3 colonnes au lieu de 4 */
+  .releases-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  /* La card --feat span 2 cols sur tablette pour rester visuellement forte */
+  .release-card--feat { grid-column: span 2; grid-row: span 1; }
+  /* Hero : photo et cards se chevauchent moins (cards ajustées) */
+  .hero-next-card { left: 40px; max-width: 220px; min-width: 220px; }
+  .hero-social-card--platforms,
+  .hero-social-card--socials { left: 40px; width: 220px; }
+  .hero-social-card--socials .hero-social-link { width: 40px; height: 40px; }
+  .hero-social-card--socials .hero-social-link svg { width: 20px; height: 20px; }
+  /* Container plus serré */
+  .container { padding: 0 32px; }
 }
 
 /* ── TOUCH / NO-HOVER ─────────────────────────────────────

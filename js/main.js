@@ -62,30 +62,48 @@ if (!isTouch) {
   }, { passive: true });
 }
 
-// ── NAVBAR ────────────────────────────────────────────────────
-const navbar   = document.getElementById('navbar');
-const burger   = document.querySelector('.nav-burger');
-const navLinks = document.querySelector('.nav-links');
-const navClose = document.querySelector('.nav-close');
+// ── NAVBAR + MOBILE MENU ──────────────────────────────────────
+const navbar     = document.getElementById('navbar');
+const burger     = document.querySelector('.nav-burger');
+const navLinks   = document.querySelector('.nav-links');
+const mobileMenu = document.getElementById('mobileMenu');
+const mobileMenuClose = document.querySelector('.mobile-menu-close');
 
 window.addEventListener('scroll', () => {
   navbar.classList.toggle('scrolled', window.scrollY > 40);
 });
-burger.addEventListener('click', () => {
-  navLinks.classList.toggle('open');
-  document.body.style.overflow = navLinks.classList.contains('open') ? 'hidden' : '';
-});
-if (navClose) {
-  navClose.addEventListener('click', () => {
-    navLinks.classList.remove('open');
-    document.body.style.overflow = '';
+
+function openMobileMenu() {
+  if (!mobileMenu) return;
+  mobileMenu.classList.add('open');
+  mobileMenu.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('menu-open');
+  burger?.setAttribute('aria-expanded', 'true');
+  burger?.setAttribute('aria-label', 'Fermer le menu');
+}
+function closeMobileMenu() {
+  if (!mobileMenu) return;
+  mobileMenu.classList.remove('open');
+  mobileMenu.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('menu-open');
+  burger?.setAttribute('aria-expanded', 'false');
+  burger?.setAttribute('aria-label', 'Ouvrir le menu');
+}
+
+if (burger) {
+  burger.addEventListener('click', () => {
+    if (mobileMenu?.classList.contains('open')) closeMobileMenu();
+    else openMobileMenu();
   });
 }
-navLinks.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => {
-    navLinks.classList.remove('open');
-    document.body.style.overflow = '';
-  });
+mobileMenuClose?.addEventListener('click', closeMobileMenu);
+// Click sur un lien du menu → ferme et scroll vers la section
+mobileMenu?.querySelectorAll('.mobile-menu-link').forEach(a => {
+  a.addEventListener('click', closeMobileMenu);
+});
+// Esc ferme aussi
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && mobileMenu?.classList.contains('open')) closeMobileMenu();
 });
 
 // ── PRÉPARE LES LETTRES DU NOM ────────────────────────────────
