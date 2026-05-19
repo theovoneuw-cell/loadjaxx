@@ -2403,8 +2403,8 @@ h1, h2, h3 {
   height: 100vh;
   pointer-events: none;
   z-index: 1; /* au-dessus du fond mais sous le contenu */
-  filter: blur(7px);
-  opacity: 0.42;
+  filter: blur(6px);
+  opacity: 0.55;
   /* Mask : fade en haut, plein en bas-droite où on les voit converger */
   mask-image: radial-gradient(
     ellipse 90% 80% at 75% 95%,
@@ -2427,19 +2427,28 @@ h1, h2, h3 {
   50%  { transform: translate(-1%, -0.5%) scale(1.015); }
   100% { transform: translate(0.5%, 0.3%) scale(1.005); }
 }
-.bg-cable {
+/* Chaque câble = 2 paths stackés : gaine noire + signal orange dashé */
+.bg-cable .cable-sheath {
   fill: none;
-  stroke-width: 2.5;
+  stroke: url(#bgCableSheath);
+  stroke-width: 7;
   stroke-linecap: round;
-  stroke-dasharray: 18 22;
+}
+.bg-cable .cable-signal {
+  fill: none;
+  stroke: #FF6B1A;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 14 22;
+  filter: drop-shadow(0 0 4px rgba(255, 90, 0, 0.7));
   animation: bgCableFlow 6s linear infinite;
 }
-.bg-cable:nth-child(1) { animation-duration: 5s;   }
-.bg-cable:nth-child(2) { animation-duration: 7s; animation-delay: -1s; }
-.bg-cable:nth-child(3) { animation-duration: 4.5s; animation-delay: -2s; }
-.bg-cable:nth-child(4) { animation-duration: 6.5s; animation-delay: -3s; }
-.bg-cable:nth-child(5) { animation-duration: 5.5s; animation-delay: -1.5s; }
-.bg-cable:nth-child(6) { animation-duration: 7.5s; animation-delay: -4s; }
+.bg-cable:nth-child(1) .cable-signal { animation-duration: 5s;   }
+.bg-cable:nth-child(2) .cable-signal { animation-duration: 7s;   animation-delay: -1s; }
+.bg-cable:nth-child(3) .cable-signal { animation-duration: 4.5s; animation-delay: -2s; }
+.bg-cable:nth-child(4) .cable-signal { animation-duration: 6.5s; animation-delay: -3s; }
+.bg-cable:nth-child(5) .cable-signal { animation-duration: 5.5s; animation-delay: -1.5s; }
+.bg-cable:nth-child(6) .cable-signal { animation-duration: 7.5s; animation-delay: -4s; }
 @keyframes bgCableFlow {
   to { stroke-dashoffset: -200; }
 }
@@ -2463,35 +2472,50 @@ h1, h2, h3 {
   pointer-events: none;
   z-index: 0;
 }
-.contact-cable {
+/* Câbles contact = vrais jacks (gaine noire épaisse + signal orange dashé) */
+.contact-cable .cable-sheath {
   fill: none;
-  stroke-width: 2.5;
+  stroke: url(#cableSheath);
+  stroke-width: 8;
   stroke-linecap: round;
-  stroke-dasharray: 14 16;
-  filter: drop-shadow(0 0 6px rgba(255, 90, 0, 0.5));
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.45));
+}
+.contact-cable .cable-signal {
+  fill: none;
+  stroke: #FF7A28;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 14 18;
+  filter: drop-shadow(0 0 6px rgba(255, 110, 30, 0.85));
   animation: cableSignal 3.5s linear infinite;
 }
-.contact-cable:nth-child(2) { animation-duration: 4.5s; animation-delay: -0.4s; }
-.contact-cable:nth-child(3) { animation-duration: 3.2s; animation-delay: -1.6s; }
-.contact-cable:nth-child(4) { animation-duration: 5s;   animation-delay: -2.4s; }
+.contact-cable:nth-child(2) .cable-signal { animation-duration: 4.5s; animation-delay: -0.4s; }
+.contact-cable:nth-child(3) .cable-signal { animation-duration: 3.2s; animation-delay: -1.6s; }
+.contact-cable:nth-child(4) .cable-signal { animation-duration: 5s;   animation-delay: -2.4s; }
 @keyframes cableSignal {
   to { stroke-dashoffset: -180; }
 }
 
-/* Plugs SVG (à la pointe de chaque câble) */
-.contact-cable-plugs .plug-ring {
-  fill: #0d0d0d;
-  stroke: rgba(255, 90, 0, 0.6);
-  stroke-width: 1.5;
-  filter: drop-shadow(0 0 10px rgba(255, 90, 0, 0.85));
+/* Plugs jack 3.5mm : sleeve métal rectangulaire (le corps) + base noire (l'isolant) + tip orange (la pointe) */
+.contact-cable-plugs .plug-sleeve {
+  fill: url(#plugMetal);
+  stroke: rgba(0, 0, 0, 0.5);
+  stroke-width: 0.8;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
+}
+.contact-cable-plugs .plug-base {
+  fill: #0a0a0a;
+  stroke: rgba(255, 90, 0, 0.35);
+  stroke-width: 0.6;
 }
 .contact-cable-plugs .plug-tip {
-  fill: url(#jackTip);
+  fill: url(#plugTipOrange);
+  filter: drop-shadow(0 0 8px rgba(255, 110, 30, 0.9));
   animation: plugBreathe 2.2s ease-in-out infinite;
 }
 @keyframes plugBreathe {
-  0%, 100% { opacity: 0.85; }
-  50%      { opacity: 1; }
+  0%, 100% { opacity: 0.92; transform: scale(1); transform-origin: center; }
+  50%      { opacity: 1;    transform: scale(1.08); transform-origin: center; }
 }
 
 /* Mixer-form au-dessus des câbles */

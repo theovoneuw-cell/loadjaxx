@@ -13,27 +13,40 @@
 </head>
 <body>
 
-  <!-- CÂBLES BACKGROUND : visibles partout, blurés, convergent vers le mixer -->
+  <!-- CÂBLES BACKGROUND : vrais jacks noir + orange, visibles partout -->
   <svg class="site-cables-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <linearGradient id="bgCableA" x1="0" y1="0" x2="0.6" y2="1">
-        <stop offset="0%"   stop-color="#FF5A00" stop-opacity="0"/>
-        <stop offset="30%"  stop-color="#FF5A00" stop-opacity="0.6"/>
-        <stop offset="100%" stop-color="#FF8C42" stop-opacity="0.95"/>
-      </linearGradient>
-      <linearGradient id="bgCableB" x1="1" y1="0" x2="0.4" y2="1">
-        <stop offset="0%"   stop-color="#FF6B1A" stop-opacity="0"/>
-        <stop offset="35%"  stop-color="#FF6B1A" stop-opacity="0.55"/>
-        <stop offset="100%" stop-color="#FF5A00" stop-opacity="0.9"/>
+      <linearGradient id="bgCableSheath" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#1a1a1a"/>
+        <stop offset="50%" stop-color="#2a2a2a"/>
+        <stop offset="100%" stop-color="#0d0d0d"/>
       </linearGradient>
     </defs>
-    <!-- Câbles principaux : convergent vers le bas-droite (où le mixer sera) -->
-    <path class="bg-cable" d="M -50 80 C 200 120, 400 350, 750 600 S 1100 720, 1200 820" stroke="url(#bgCableA)"/>
-    <path class="bg-cable" d="M 50 -30 C 120 200, 250 420, 600 580 S 1050 700, 1250 850" stroke="url(#bgCableB)"/>
-    <path class="bg-cable" d="M 1480 60 C 1280 180, 1100 400, 950 600 S 1100 760, 1230 870" stroke="url(#bgCableA)"/>
-    <path class="bg-cable" d="M 1500 320 C 1300 400, 1150 540, 1080 700 S 1180 830, 1240 880" stroke="url(#bgCableB)"/>
-    <path class="bg-cable" d="M 720 -40 C 740 240, 820 480, 950 660 S 1150 800, 1260 890" stroke="url(#bgCableA)"/>
-    <path class="bg-cable" d="M -40 480 C 200 530, 500 620, 800 700 S 1100 800, 1240 870" stroke="url(#bgCableB)"/>
+    <!-- Chaque câble = groupe avec gaine noire (épaisse) + signal orange dashed (fin par-dessus) -->
+    <g class="bg-cable">
+      <path class="cable-sheath" d="M -50 80 C 200 120, 400 350, 750 600 S 1100 720, 1200 820"/>
+      <path class="cable-signal" d="M -50 80 C 200 120, 400 350, 750 600 S 1100 720, 1200 820"/>
+    </g>
+    <g class="bg-cable">
+      <path class="cable-sheath" d="M 50 -30 C 120 200, 250 420, 600 580 S 1050 700, 1250 850"/>
+      <path class="cable-signal" d="M 50 -30 C 120 200, 250 420, 600 580 S 1050 700, 1250 850"/>
+    </g>
+    <g class="bg-cable">
+      <path class="cable-sheath" d="M 1480 60 C 1280 180, 1100 400, 950 600 S 1100 760, 1230 870"/>
+      <path class="cable-signal" d="M 1480 60 C 1280 180, 1100 400, 950 600 S 1100 760, 1230 870"/>
+    </g>
+    <g class="bg-cable">
+      <path class="cable-sheath" d="M 1500 320 C 1300 400, 1150 540, 1080 700 S 1180 830, 1240 880"/>
+      <path class="cable-signal" d="M 1500 320 C 1300 400, 1150 540, 1080 700 S 1180 830, 1240 880"/>
+    </g>
+    <g class="bg-cable">
+      <path class="cable-sheath" d="M 720 -40 C 740 240, 820 480, 950 660 S 1150 800, 1260 890"/>
+      <path class="cable-signal" d="M 720 -40 C 740 240, 820 480, 950 660 S 1150 800, 1260 890"/>
+    </g>
+    <g class="bg-cable">
+      <path class="cable-sheath" d="M -40 480 C 200 530, 500 620, 800 700 S 1100 800, 1240 870"/>
+      <path class="cable-signal" d="M -40 480 C 200 530, 500 620, 800 700 S 1100 800, 1240 870"/>
+    </g>
   </svg>
 
   <!-- LOADER -->
@@ -643,43 +656,60 @@
 
   <!-- CONTACT -->
   <section id="contact">
-    <!-- Câbles audio qui traversent et se branchent dans le mixer -->
+    <!-- Câbles audio : vrais jacks 3.5mm (gaine noire + signal orange) -->
     <svg class="contact-cables" viewBox="0 0 1200 600" preserveAspectRatio="none" aria-hidden="true">
       <defs>
-        <linearGradient id="cableGradA" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"  stop-color="#FF5A00" stop-opacity="0"/>
-          <stop offset="40%" stop-color="#FF5A00" stop-opacity="0.65"/>
-          <stop offset="100%" stop-color="#FF8C42" stop-opacity="0.95"/>
+        <linearGradient id="cableSheath" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#1a1a1a"/>
+          <stop offset="50%" stop-color="#2c2c2c"/>
+          <stop offset="100%" stop-color="#0d0d0d"/>
         </linearGradient>
-        <linearGradient id="cableGradB" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"  stop-color="#FF5A00" stop-opacity="0"/>
-          <stop offset="35%" stop-color="#FF5A00" stop-opacity="0.5"/>
-          <stop offset="100%" stop-color="#FF6B1A" stop-opacity="0.85"/>
-        </linearGradient>
-        <radialGradient id="jackTip" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"  stop-color="#fff" stop-opacity="0.9"/>
-          <stop offset="60%" stop-color="#FF6B1A"/>
-          <stop offset="100%" stop-color="#cc4400"/>
+        <radialGradient id="plugMetal" cx="35%" cy="35%" r="65%">
+          <stop offset="0%"   stop-color="#cccccc"/>
+          <stop offset="50%"  stop-color="#5a5a5a"/>
+          <stop offset="100%" stop-color="#1a1a1a"/>
+        </radialGradient>
+        <radialGradient id="plugTipOrange" cx="35%" cy="35%" r="65%">
+          <stop offset="0%"   stop-color="#FFAA66"/>
+          <stop offset="55%"  stop-color="#FF6B1A"/>
+          <stop offset="100%" stop-color="#a13000"/>
         </radialGradient>
       </defs>
-      <!-- Cable 1 : depuis top-left, curve longue vers jack droit -->
-      <path class="contact-cable" d="M 80 -20 C 80 180, 720 100, 720 470" stroke="url(#cableGradA)"/>
-      <!-- Cable 2 : depuis top-center, curve courte -->
-      <path class="contact-cable" d="M 400 -20 C 400 80, 820 200, 820 470" stroke="url(#cableGradB)"/>
-      <!-- Cable 3 : depuis top-right, curve descendante -->
-      <path class="contact-cable" d="M 1100 -20 C 1100 150, 920 300, 920 470" stroke="url(#cableGradA)"/>
-      <!-- Cable 4 : depuis far right -->
-      <path class="contact-cable" d="M 1220 60 C 1100 280, 1020 380, 1020 470" stroke="url(#cableGradB)"/>
-      <!-- Plugs à la pointe : couches concentriques pour l'effet jack 3.5mm -->
+      <!-- 4 câbles : chaque câble = gaine noire + signal orange dashé par-dessus -->
+      <g class="contact-cable">
+        <path class="cable-sheath" d="M 80 -20 C 80 180, 720 100, 720 460"/>
+        <path class="cable-signal" d="M 80 -20 C 80 180, 720 100, 720 460"/>
+      </g>
+      <g class="contact-cable">
+        <path class="cable-sheath" d="M 400 -20 C 400 80, 820 200, 820 460"/>
+        <path class="cable-signal" d="M 400 -20 C 400 80, 820 200, 820 460"/>
+      </g>
+      <g class="contact-cable">
+        <path class="cable-sheath" d="M 1100 -20 C 1100 150, 920 300, 920 460"/>
+        <path class="cable-signal" d="M 1100 -20 C 1100 150, 920 300, 920 460"/>
+      </g>
+      <g class="contact-cable">
+        <path class="cable-sheath" d="M 1220 60 C 1100 280, 1020 380, 1020 460"/>
+        <path class="cable-signal" d="M 1220 60 C 1100 280, 1020 380, 1020 460"/>
+      </g>
+      <!-- Plugs jack 3.5mm : sleeve métal + base noire + tip orange -->
       <g class="contact-cable-plugs">
-        <circle cx="720"  cy="470" r="9" class="plug-ring"/>
-        <circle cx="720"  cy="470" r="5" class="plug-tip"/>
-        <circle cx="820"  cy="470" r="9" class="plug-ring"/>
-        <circle cx="820"  cy="470" r="5" class="plug-tip"/>
-        <circle cx="920"  cy="470" r="9" class="plug-ring"/>
-        <circle cx="920"  cy="470" r="5" class="plug-tip"/>
-        <circle cx="1020" cy="470" r="9" class="plug-ring"/>
-        <circle cx="1020" cy="470" r="5" class="plug-tip"/>
+        <!-- Jack 1 -->
+        <rect x="710" y="455" width="20" height="34" rx="4" class="plug-sleeve"/>
+        <circle cx="720"  cy="470" r="6.5" class="plug-base"/>
+        <circle cx="720"  cy="470" r="3.5" class="plug-tip"/>
+        <!-- Jack 2 -->
+        <rect x="810" y="455" width="20" height="34" rx="4" class="plug-sleeve"/>
+        <circle cx="820"  cy="470" r="6.5" class="plug-base"/>
+        <circle cx="820"  cy="470" r="3.5" class="plug-tip"/>
+        <!-- Jack 3 -->
+        <rect x="910" y="455" width="20" height="34" rx="4" class="plug-sleeve"/>
+        <circle cx="920"  cy="470" r="6.5" class="plug-base"/>
+        <circle cx="920"  cy="470" r="3.5" class="plug-tip"/>
+        <!-- Jack 4 -->
+        <rect x="1010" y="455" width="20" height="34" rx="4" class="plug-sleeve"/>
+        <circle cx="1020" cy="470" r="6.5" class="plug-base"/>
+        <circle cx="1020" cy="470" r="3.5" class="plug-tip"/>
       </g>
     </svg>
     <div class="container">

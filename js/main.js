@@ -1224,17 +1224,19 @@ function spawnVinylConfetti(originEl) {
     'linear-gradient(135deg,#331100 0%,#FF8C42 100%)',
   ];
 
-  // Données statiques — visibles immédiatement, remplacées par l'API si dispo
+  // Données statiques — visibles immédiatement, remplacées par l'API si dispo.
+  // Reflètent les releases réelles de Loadjaxx (alignées sur Spotify/Deezer)
+  const SPOTIFY_LINK = 'https://open.spotify.com/intl-fr/artist/3YE19U8tfVU4D0TI4IeilQ';
   const staticReleases = [
-    { name: "Rihanna — Why",      year: '2026', type: 'remix',    url: 'https://linktr.ee/loadjaxx', img: null },
-    { name: "Friendly (Remix)",   year: '2025', type: 'remix',    url: 'https://linktr.ee/loadjaxx', img: null },
-    { name: "Friendly",           year: '2025', type: 'original', url: 'https://linktr.ee/loadjaxx', img: null },
-    { name: "Flawless",           year: '2025', type: 'original', url: 'https://linktr.ee/loadjaxx', img: null },
-    { name: "Free My Mind",       year: '2025', type: 'original', url: 'https://linktr.ee/loadjaxx', img: null },
-    { name: "House + Tequila",    year: '2024', type: 'original', url: 'https://linktr.ee/loadjaxx', img: null },
-    { name: "My Bubble",          year: '2024', type: 'original', url: 'https://linktr.ee/loadjaxx', img: null },
-    { name: "Gold Face",          year: '2023', type: 'original', url: 'https://linktr.ee/loadjaxx', img: null },
-    { name: "Ring Mode",          year: '2023', type: 'original', url: 'https://linktr.ee/loadjaxx', img: null },
+    { name: "Right there, I'm going (Loadjaxx Remix)", year: '2025', type: 'remix',    url: SPOTIFY_LINK, img: null },
+    { name: "House + Tequila",  year: '2024', type: 'original', url: SPOTIFY_LINK, img: null },
+    { name: "Flawless",         year: '2025', type: 'original', url: SPOTIFY_LINK, img: null },
+    { name: "Free My Mind",     year: '2025', type: 'original', url: SPOTIFY_LINK, img: null },
+    { name: "Friendly",         year: '2025', type: 'original', url: SPOTIFY_LINK, img: null },
+    { name: "Gold Face",        year: '2023', type: 'original', url: SPOTIFY_LINK, img: null },
+    { name: "Try Me",           year: '2024', type: 'original', url: SPOTIFY_LINK, img: null },
+    { name: "Glory Owl",        year: '2024', type: 'original', url: SPOTIFY_LINK, img: null },
+    { name: "My Bubble",        year: '2024', type: 'original', url: SPOTIFY_LINK, img: null },
   ];
 
   function buildCard(item, i) {
@@ -1323,7 +1325,7 @@ function spawnVinylConfetti(originEl) {
 
   // ── Cache localStorage : évite de hammer l'API Spotify à chaque reload
   //    et préserve les miniatures même quand on hit le rate-limit
-  const CACHE_KEY = 'loadjaxx_spotify_v1';
+  const CACHE_KEY = 'loadjaxx_spotify_v2';
   const CACHE_TTL = 60 * 60 * 1000; // 60 minutes
 
   function readCache(allowExpired) {
