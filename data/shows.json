@@ -1,49 +1,12 @@
 {
   "shows": [
     {
-      "date": "2026-06-14",
-      "venue": "Glow Up",
-      "city": "Paris",
-      "country": "France",
-      "sold_out": true,
-      "link": "https://linktr.ee/loadjaxx",
-      "link_label": "Billets"
-    },
-    {
-      "date": "2026-07-04",
-      "venue": "Studio M",
-      "city": "Montpellier",
       "country": "France",
       "sold_out": false,
-      "link": "",
-      "link_label": "Infos"
-    },
-    {
-      "date": "2026-08-22",
-      "venue": "Warehouse Festival",
-      "city": "Marseille",
-      "country": "France",
-      "sold_out": false,
-      "link": "",
-      "link_label": "Infos"
-    },
-    {
-      "date": "2026-09-05",
-      "venue": "Le Réservoir",
-      "city": "Lyon",
-      "country": "France",
-      "sold_out": false,
-      "link": "",
-      "link_label": "Infos"
-    },
-    {
-      "date": "2025-11-15",
-      "venue": "Nuits Sonores",
-      "city": "Bordeaux",
-      "country": "France",
-      "sold_out": false,
-      "link": "https://linktr.ee/loadjaxx",
-      "link_label": "Replay"
+      "link_label": "Infos",
+      "date": "2026-05-21",
+      "venue": "LE FIZZ",
+      "city": "Montpellier"
     }
   ]
 }
