@@ -13,6 +13,29 @@
 </head>
 <body>
 
+  <!-- CÂBLES BACKGROUND : visibles partout, blurés, convergent vers le mixer -->
+  <svg class="site-cables-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="bgCableA" x1="0" y1="0" x2="0.6" y2="1">
+        <stop offset="0%"   stop-color="#FF5A00" stop-opacity="0"/>
+        <stop offset="30%"  stop-color="#FF5A00" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#FF8C42" stop-opacity="0.95"/>
+      </linearGradient>
+      <linearGradient id="bgCableB" x1="1" y1="0" x2="0.4" y2="1">
+        <stop offset="0%"   stop-color="#FF6B1A" stop-opacity="0"/>
+        <stop offset="35%"  stop-color="#FF6B1A" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#FF5A00" stop-opacity="0.9"/>
+      </linearGradient>
+    </defs>
+    <!-- Câbles principaux : convergent vers le bas-droite (où le mixer sera) -->
+    <path class="bg-cable" d="M -50 80 C 200 120, 400 350, 750 600 S 1100 720, 1200 820" stroke="url(#bgCableA)"/>
+    <path class="bg-cable" d="M 50 -30 C 120 200, 250 420, 600 580 S 1050 700, 1250 850" stroke="url(#bgCableB)"/>
+    <path class="bg-cable" d="M 1480 60 C 1280 180, 1100 400, 950 600 S 1100 760, 1230 870" stroke="url(#bgCableA)"/>
+    <path class="bg-cable" d="M 1500 320 C 1300 400, 1150 540, 1080 700 S 1180 830, 1240 880" stroke="url(#bgCableB)"/>
+    <path class="bg-cable" d="M 720 -40 C 740 240, 820 480, 950 660 S 1150 800, 1260 890" stroke="url(#bgCableA)"/>
+    <path class="bg-cable" d="M -40 480 C 200 530, 500 620, 800 700 S 1100 800, 1240 870" stroke="url(#bgCableB)"/>
+  </svg>
+
   <!-- LOADER -->
   <div id="loader">
     <div class="loader-panel loader-panel-top"></div>

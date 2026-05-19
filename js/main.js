@@ -294,16 +294,42 @@ function _heroFallback() {
   let envSnare = 0;
   let envBreath = 0.8;
 
-  // ── Audio bars equalizer — fresh, modern, DAW-style ──────
-  const BAR_COUNT = 84;
-  const BAR_GAP   = 3;
-  let peakHolds = new Float32Array(BAR_COUNT);
+  // ── Waveform élégante : ligne oscilloscope + glow + particules ──
+  // Liste de particules orange qui s'élèvent depuis la ligne (spawn sur kicks)
+  const particles = [];
+  const MAX_PARTICLES = 60;
+
+  function spawnParticle(x, y) {
+    if (particles.length >= MAX_PARTICLES) return;
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -0.4 - Math.random() * 0.9,
+      r: 1.2 + Math.random() * 1.6,
+      life: 1,
+      decay: 0.008 + Math.random() * 0.012,
+    });
+  }
+
+  // Calcul de la hauteur du wave à un x donné (utilisé pour tracer ET spawn)
+  function waveH(x, cy, amp) {
+    const n   = noiseProfile[Math.min(noiseProfile.length - 1, x)];
+    const slow  = Math.sin(t * 0.011 + x * 0.0042) * 0.10;
+    const mid   = Math.sin(t * 0.028 + x * 0.0098) * 0.06;
+    const fast  = Math.sin(t * 0.062 + x * 0.0220) * 0.03;
+    const freqW = x / W;
+    const kickW  = (1 - freqW) * envKick * 0.32;
+    const snareW = freqW * envSnare * 0.18;
+    return (n + slow + mid + fast + kickW + snareW) * amp * cy * 0.55;
+  }
+
+  let lastBeatT = -10;
 
   function draw() {
     const { off, octx: oc } = getOff();
     oc.clearRect(0, 0, W, H);
 
-    // ── Beat envelopes at 128 BPM
+    // ── Beat envelopes 128 BPM
     const beatPhase  = (t / BEAT) % 1;
     const snarePhase = (t / BEAT * 0.5 + 0.5) % 1;
     const kickTarget  = Math.exp(-beatPhase  * 8) * 0.9;
@@ -312,77 +338,83 @@ function _heroFallback() {
     envSnare += (snareTarget > envSnare ? 0.40 : 0.05) * (snareTarget - envSnare);
     envBreath += (0.78 + 0.22 * Math.sin(t * 0.022) - envBreath) * 0.03;
     const amp = envBreath + envKick * 0.28 + envSnare * 0.10 + (window._previewBoost || 0) * 0.55;
+    const cy = H * 0.65;
 
-    // Baseline placée vers le bas pour donner du poids aux barres
-    const cy = H * 0.78;
+    // ── Glow doux en dessous (back layer)
+    const glowGrad = oc.createLinearGradient(0, cy - 30, 0, H);
+    glowGrad.addColorStop(0,   'rgba(255, 90, 0, 0)');
+    glowGrad.addColorStop(0.4, `rgba(255, 110, 30, ${0.06 + envKick * 0.04})`);
+    glowGrad.addColorStop(1,   'rgba(255, 90, 0, 0)');
+    oc.fillStyle = glowGrad;
+    oc.fillRect(0, cy - 60, W, 120);
 
-    // ── Largeur d'une barre adaptée au viewport
-    const totalGaps = BAR_GAP * (BAR_COUNT - 1);
-    const barW = Math.max(2, (W - totalGaps) / BAR_COUNT);
-    const noiseStep = Math.floor(noiseProfile.length / BAR_COUNT);
+    // ── Trace la ligne d'oscilloscope principale
+    oc.beginPath();
+    const step = 2; // skip-pixel pour performance, ligne lisse
+    let firstY = 0;
+    for (let x = 0; x <= W; x += step) {
+      const h = waveH(x, cy, amp);
+      const y = cy - h;
+      if (x === 0) { oc.moveTo(x, y); firstY = y; }
+      else oc.lineTo(x, y);
+    }
+    // Stroke avec gradient horizontal (fade aux bords)
+    const lineGrad = oc.createLinearGradient(0, 0, W, 0);
+    lineGrad.addColorStop(0,    'rgba(255, 90, 0, 0)');
+    lineGrad.addColorStop(0.12, 'rgba(255, 130, 40, 0.85)');
+    lineGrad.addColorStop(0.5,  'rgba(255, 180, 80, 1)');
+    lineGrad.addColorStop(0.88, 'rgba(255, 130, 40, 0.85)');
+    lineGrad.addColorStop(1,    'rgba(255, 90, 0, 0)');
+    oc.strokeStyle = lineGrad;
+    oc.lineWidth = 1.8 + envKick * 0.8;
+    oc.lineCap = 'round';
+    oc.lineJoin = 'round';
+    oc.shadowColor = 'rgba(255, 120, 30, 0.55)';
+    oc.shadowBlur = 12;
+    oc.stroke();
+    oc.shadowBlur = 0;
 
-    for (let i = 0; i < BAR_COUNT; i++) {
-      const x = i * (barW + BAR_GAP);
-      const xRatio = i / (BAR_COUNT - 1);
+    // ── Seconde ligne miroir doux (back)
+    oc.beginPath();
+    for (let x = 0; x <= W; x += step) {
+      const h = waveH(x, cy, amp) * 0.55;
+      const y = cy + h * 0.3 + 4; // léger offset sous la ligne principale
+      if (x === 0) oc.moveTo(x, y);
+      else oc.lineTo(x, y);
+    }
+    oc.strokeStyle = 'rgba(255, 100, 30, 0.18)';
+    oc.lineWidth = 1;
+    oc.stroke();
 
-      // Échantillonne le bruit + multiples couches sin pour mouvement organique
-      const n     = noiseProfile[Math.min(noiseProfile.length - 1, i * noiseStep)];
-      const slow  = Math.sin(t * 0.012 + i * 0.42) * 0.12;
-      const mid   = Math.sin(t * 0.034 + i * 1.07) * 0.07;
-      const fast  = Math.sin(t * 0.061 + i * 2.31) * 0.04;
-
-      // Bandes de fréquences : kick à gauche, snare à droite
-      const kickW  = (1 - xRatio) * envKick * 0.42;
-      const snareW = xRatio * envSnare * 0.26;
-
-      const hRaw = (n + slow + mid + fast + kickW + snareW) * amp;
-      const h = Math.max(3, hRaw * cy * 0.78);
-      const yTop = cy - h;
-
-      // Peak hold : suit la barre vers le haut rapide, descend lentement
-      if (h > peakHolds[i]) peakHolds[i] = h;
-      else peakHolds[i] *= 0.974;
-
-      // ── Barre principale avec gradient vertical
-      const grad = oc.createLinearGradient(0, yTop, 0, cy);
-      grad.addColorStop(0,    'rgba(255, 200, 110, 0.9)');
-      grad.addColorStop(0.35, 'rgba(255, 130, 45, 0.78)');
-      grad.addColorStop(1,    'rgba(255, 70, 0, 0.45)');
-      oc.fillStyle = grad;
-      if (oc.roundRect) {
-        oc.beginPath();
-        oc.roundRect(x, yTop, barW, h, [barW * 0.5, barW * 0.5, 0, 0]);
-        oc.fill();
-      } else {
-        oc.fillRect(x, yTop, barW, h);
+    // ── Spawn particules sur kicks (peaks)
+    if (envKick > 0.5 && t - lastBeatT > BEAT * 0.6) {
+      lastBeatT = t;
+      // Spawn 3-5 particules réparties sur les peaks visibles
+      const spawns = 3 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < spawns; i++) {
+        const x = Math.random() * W;
+        const h = waveH(Math.floor(x), cy, amp);
+        spawnParticle(x, cy - h - 2);
       }
-
-      // ── Peak hold marker — petit trait blanc qui flotte au sommet
-      if (peakHolds[i] > 6) {
-        const peakY = cy - peakHolds[i];
-        oc.fillStyle = `rgba(255, 230, 200, ${Math.min(1, peakHolds[i] / 24)})`;
-        oc.fillRect(x, peakY - 2.5, barW, 2);
-      }
-
-      // ── Reflet doux en dessous (mirror court)
-      const reflectH = h * 0.32;
-      const refGrad = oc.createLinearGradient(0, cy, 0, cy + reflectH);
-      refGrad.addColorStop(0, 'rgba(255, 110, 30, 0.22)');
-      refGrad.addColorStop(1, 'rgba(255, 90, 0, 0)');
-      oc.fillStyle = refGrad;
-      oc.fillRect(x, cy, barW, reflectH);
     }
 
-    // ── Beat flash : halo radial au centre sur le kick
-    if (envKick > 0.08) {
-      const fg = oc.createRadialGradient(W / 2, cy, 0, W / 2, cy, W * 0.45);
-      fg.addColorStop(0, `rgba(255, 140, 40, ${envKick * 0.14})`);
-      fg.addColorStop(1, 'rgba(255, 90, 0, 0)');
-      oc.fillStyle = fg;
-      oc.fillRect(0, cy - 70, W, 140);
+    // ── Update + draw particules
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= p.decay;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      oc.fillStyle = `rgba(255, 170, 80, ${p.life * 0.85})`;
+      oc.shadowColor = 'rgba(255, 120, 40, 0.6)';
+      oc.shadowBlur = 6;
+      oc.beginPath();
+      oc.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      oc.fill();
     }
+    oc.shadowBlur = 0;
 
-    // ── Fade horizontal aux bords
+    // ── Fade horizontal aux bords (au cas où ligne déborde)
     oc.globalCompositeOperation = 'destination-in';
     const fade = oc.createLinearGradient(0, 0, W, 0);
     fade.addColorStop(0,    'rgba(0,0,0,0)');
@@ -1268,9 +1300,24 @@ function spawnVinylConfetti(originEl) {
   deezerPromise.then(dz => {
     if (!dz || Object.keys(dz).length === 0) return;
     grid.querySelectorAll('.release-card').forEach(card => {
-      if (card.dataset.preview) return; // déjà rempli
       const hit = findInMap(card.dataset.track || '', dz);
-      if (hit) card.dataset.preview = hit.preview;
+      if (!hit) return;
+      // Préview audio
+      if (!card.dataset.preview && hit.preview) card.dataset.preview = hit.preview;
+      // Cover image : remplace le gradient bg par une vraie image Deezer
+      if (hit.cover && !card.querySelector('.release-img')) {
+        const cover = card.querySelector('.release-cover');
+        const bg = cover?.querySelector('.release-cover-bg');
+        if (cover && bg) {
+          const img = document.createElement('img');
+          img.src = hit.cover;
+          img.alt = card.dataset.track || '';
+          img.loading = 'lazy';
+          img.className = 'release-img';
+          // Insère l'img à la place du gradient (qui reste comme fallback derrière)
+          bg.replaceWith(img);
+        }
+      }
     });
   });
 

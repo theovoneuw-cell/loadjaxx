@@ -2394,6 +2394,64 @@ h1, h2, h3 {
 #contact { background: var(--bg2); padding: 140px 0; position: relative; overflow: hidden; }
 
 /* ═══════════════════════════════════════════════════════════
+   SITE CABLES BG — câbles flous traversant tout le site
+   ═══════════════════════════════════════════════════════════ */
+.site-cables-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1; /* au-dessus du fond mais sous le contenu */
+  filter: blur(7px);
+  opacity: 0.42;
+  /* Mask : fade en haut, plein en bas-droite où on les voit converger */
+  mask-image: radial-gradient(
+    ellipse 90% 80% at 75% 95%,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.85) 35%,
+    rgba(0, 0, 0, 0.55) 65%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 90% 80% at 75% 95%,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.85) 35%,
+    rgba(0, 0, 0, 0.55) 65%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  animation: cablesDrift 30s ease-in-out infinite alternate;
+}
+@keyframes cablesDrift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-1%, -0.5%) scale(1.015); }
+  100% { transform: translate(0.5%, 0.3%) scale(1.005); }
+}
+.bg-cable {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 18 22;
+  animation: bgCableFlow 6s linear infinite;
+}
+.bg-cable:nth-child(1) { animation-duration: 5s;   }
+.bg-cable:nth-child(2) { animation-duration: 7s; animation-delay: -1s; }
+.bg-cable:nth-child(3) { animation-duration: 4.5s; animation-delay: -2s; }
+.bg-cable:nth-child(4) { animation-duration: 6.5s; animation-delay: -3s; }
+.bg-cable:nth-child(5) { animation-duration: 5.5s; animation-delay: -1.5s; }
+.bg-cable:nth-child(6) { animation-duration: 7.5s; animation-delay: -4s; }
+@keyframes bgCableFlow {
+  to { stroke-dashoffset: -200; }
+}
+
+@media (max-width: 760px) {
+  .site-cables-bg { opacity: 0.22; filter: blur(10px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-cables-bg, .bg-cable { animation: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════
    CONTACT CABLES — câbles audio qui se branchent dans le mixer
    ═══════════════════════════════════════════════════════════ */
 .contact-cables {
