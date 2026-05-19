@@ -1234,8 +1234,8 @@ function spawnVinylConfetti(originEl) {
     { name: "Free My Mind",     year: '2025', type: 'original', url: SPOTIFY_LINK, img: null },
     { name: "Friendly",         year: '2025', type: 'original', url: SPOTIFY_LINK, img: null },
     { name: "Gold Face",        year: '2023', type: 'original', url: SPOTIFY_LINK, img: null },
-    { name: "Try Me",           year: '2024', type: 'original', url: SPOTIFY_LINK, img: null },
-    { name: "Glory Owl",        year: '2024', type: 'original', url: SPOTIFY_LINK, img: null },
+    { name: "Big Daddy",        year: '2024', type: 'original', url: 'https://open.spotify.com/intl-fr/album/2hmJUUxgmqyy83YmWruZic', img: null },
+    { name: "SHAKE YOUR PHONE", year: '2025', type: 'original', url: 'https://open.spotify.com/intl-fr/album/53iZifipoKv1DJjTqCEe6H', img: null },
     { name: "My Bubble",        year: '2024', type: 'original', url: SPOTIFY_LINK, img: null },
   ];
 
@@ -1325,7 +1325,7 @@ function spawnVinylConfetti(originEl) {
 
   // ── Cache localStorage : évite de hammer l'API Spotify à chaque reload
   //    et préserve les miniatures même quand on hit le rate-limit
-  const CACHE_KEY = 'loadjaxx_spotify_v2';
+  const CACHE_KEY = 'loadjaxx_spotify_v3';
   const CACHE_TTL = 60 * 60 * 1000; // 60 minutes
 
   function readCache(allowExpired) {
@@ -1692,6 +1692,99 @@ function spawnVinylConfetti(originEl) {
       });
     }
   }
+})();
+
+// ── Alignement câbles ↔ jacks de la console ───────────────────
+(function cablesAlignment() {
+  const contactSvg = document.querySelector('.contact-cables');
+  const jacks      = document.querySelectorAll('.mixer-jack');
+  if (!contactSvg || !jacks.length) return;
+
+  const VB_W = 1200, VB_H = 600;
+
+  // Paths source : chaque cable a 2 path enfants (sheath + signal)
+  // dont on extrait le point de départ et la courbe, et on met à jour le point d'arrivée
+  const cables = Array.from(contactSvg.querySelectorAll('g.contact-cable'));
+  const plugs  = contactSvg.querySelector('.contact-cable-plugs');
+
+  // Points de départ fixes en haut du SVG (les câbles arrivent depuis ces points)
+  const START_POINTS = [
+    { x: 80,   y: -20, ctrl: { x1: 80,   y1: 180 } },
+    { x: 400,  y: -20, ctrl: { x1: 400,  y1: 80  } },
+    { x: 1100, y: -20, ctrl: { x1: 1100, y1: 150 } },
+    { x: 1220, y: 60,  ctrl: { x1: 1100, y1: 280 } },
+  ];
+
+  function align() {
+    // Rectangle du SVG en coords écran
+    const svgRect = contactSvg.getBoundingClientRect();
+    if (svgRect.width === 0) return;
+
+    // Position de chaque jack en coords viewBox
+    const targets = Array.from(jacks).map(j => {
+      const r = j.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top  + r.height / 2;
+      return {
+        x: (cx - svgRect.left) / svgRect.width  * VB_W,
+        y: (cy - svgRect.top)  / svgRect.height * VB_H,
+      };
+    });
+
+    // Update path de chaque cable + plug correspondant
+    cables.forEach((g, i) => {
+      const start = START_POINTS[i];
+      const end   = targets[i];
+      if (!start || !end) return;
+
+      // Point de contrôle 2 : juste au-dessus de la cible pour une approche verticale propre
+      const ctrl2x = end.x;
+      const ctrl2y = end.y - 220;
+      const d = `M ${start.x} ${start.y} C ${start.ctrl.x1} ${start.ctrl.y1}, ${ctrl2x.toFixed(1)} ${ctrl2y.toFixed(1)}, ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
+
+      const paths = g.querySelectorAll('path');
+      paths.forEach(p => p.setAttribute('d', d));
+    });
+
+    // Update positions des plugs (4 jacks 3.5mm en bas des cables)
+    if (plugs) {
+      const allSleeves = plugs.querySelectorAll('.plug-sleeve');
+      const allBases   = plugs.querySelectorAll('.plug-base');
+      const allTips    = plugs.querySelectorAll('.plug-tip');
+      targets.forEach((t, i) => {
+        if (allSleeves[i]) {
+          allSleeves[i].setAttribute('x', (t.x - 10).toFixed(1));
+          allSleeves[i].setAttribute('y', (t.y - 15).toFixed(1));
+        }
+        if (allBases[i]) {
+          allBases[i].setAttribute('cx', t.x.toFixed(1));
+          allBases[i].setAttribute('cy', t.y.toFixed(1));
+        }
+        if (allTips[i]) {
+          allTips[i].setAttribute('cx', t.x.toFixed(1));
+          allTips[i].setAttribute('cy', t.y.toFixed(1));
+        }
+      });
+    }
+  }
+
+  // Mise à jour BG cables : hauteur SVG = hauteur document
+  const bgSvg = document.getElementById('bgCablesSvg');
+  function updateBgHeight() {
+    if (!bgSvg) return;
+    const h = document.documentElement.scrollHeight;
+    bgSvg.style.height = h + 'px';
+  }
+
+  // Init + résize + après que les sections aient leur hauteur définitive
+  align();
+  updateBgHeight();
+  window.addEventListener('resize', () => { align(); updateBgHeight(); });
+  window.addEventListener('load',   () => { align(); updateBgHeight(); });
+  // Re-align après le loader + animation d'entrée + dynamic content (Spotify)
+  setTimeout(() => { align(); updateBgHeight(); }, 1500);
+  setTimeout(() => { align(); updateBgHeight(); }, 3500);
+  setTimeout(() => { align(); updateBgHeight(); }, 6000);
 })();
 
 // ── Ripple au click sur les social links ──────────────────────

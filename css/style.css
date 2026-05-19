@@ -2397,36 +2397,33 @@ h1, h2, h3 {
    SITE CABLES BG — câbles flous traversant tout le site
    ═══════════════════════════════════════════════════════════ */
 .site-cables-bg {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
+  position: absolute; /* scrolle avec la page (au lieu de fixed) */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; /* hauteur = body height, mise à jour par JS si besoin */
   pointer-events: none;
-  z-index: 1; /* au-dessus du fond mais sous le contenu */
-  filter: blur(6px);
-  opacity: 0.55;
-  /* Mask : fade en haut, plein en bas-droite où on les voit converger */
-  mask-image: radial-gradient(
-    ellipse 90% 80% at 75% 95%,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.85) 35%,
-    rgba(0, 0, 0, 0.55) 65%,
-    rgba(0, 0, 0, 0.3) 100%
+  z-index: 1;
+  filter: blur(5px);
+  opacity: 0.5;
+  /* Mask : plus visibles vers le bas (où le mixer apparaît au scroll) */
+  mask-image: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.55) 50%,
+    rgba(0, 0, 0, 1)    90%,
+    rgba(0, 0, 0, 1)    100%
   );
-  -webkit-mask-image: radial-gradient(
-    ellipse 90% 80% at 75% 95%,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.85) 35%,
-    rgba(0, 0, 0, 0.55) 65%,
-    rgba(0, 0, 0, 0.3) 100%
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.55) 50%,
+    rgba(0, 0, 0, 1)    90%,
+    rgba(0, 0, 0, 1)    100%
   );
-  animation: cablesDrift 30s ease-in-out infinite alternate;
 }
-@keyframes cablesDrift {
-  0%   { transform: translate(0, 0) scale(1); }
-  50%  { transform: translate(-1%, -0.5%) scale(1.015); }
-  100% { transform: translate(0.5%, 0.3%) scale(1.005); }
-}
+/* body relative pour que le SVG absolute couvre toute la hauteur */
+body { position: relative; }
 /* Chaque câble = 2 paths stackés : gaine noire + signal orange dashé */
 .bg-cable .cable-sheath {
   fill: none;

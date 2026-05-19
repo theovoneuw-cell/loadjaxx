@@ -13,8 +13,9 @@
 </head>
 <body>
 
-  <!-- CÂBLES BACKGROUND : vrais jacks noir + orange, visibles partout -->
-  <svg class="site-cables-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <!-- CÂBLES BACKGROUND : vrais jacks noir + orange, scrollent avec la page,
+       convergent vers la console (qui est en bas du document) -->
+  <svg class="site-cables-bg" id="bgCablesSvg" viewBox="0 0 1440 5000" preserveAspectRatio="none" aria-hidden="true">
     <defs>
       <linearGradient id="bgCableSheath" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%"  stop-color="#1a1a1a"/>
@@ -22,30 +23,31 @@
         <stop offset="100%" stop-color="#0d0d0d"/>
       </linearGradient>
     </defs>
-    <!-- Chaque câble = groupe avec gaine noire (épaisse) + signal orange dashed (fin par-dessus) -->
+    <!-- Câbles longs qui partent du haut/des côtés et convergent vers le bas-droite
+         (où la console contact se trouvera quand on scroll) -->
     <g class="bg-cable">
-      <path class="cable-sheath" d="M -50 80 C 200 120, 400 350, 750 600 S 1100 720, 1200 820"/>
-      <path class="cable-signal" d="M -50 80 C 200 120, 400 350, 750 600 S 1100 720, 1200 820"/>
+      <path class="cable-sheath" d="M -80 200 C 100 800, 350 2200, 700 3500 S 1080 4500, 1180 4900"/>
+      <path class="cable-signal" d="M -80 200 C 100 800, 350 2200, 700 3500 S 1080 4500, 1180 4900"/>
     </g>
     <g class="bg-cable">
-      <path class="cable-sheath" d="M 50 -30 C 120 200, 250 420, 600 580 S 1050 700, 1250 850"/>
-      <path class="cable-signal" d="M 50 -30 C 120 200, 250 420, 600 580 S 1050 700, 1250 850"/>
+      <path class="cable-sheath" d="M 350 -50 C 320 800, 480 2000, 700 3200 S 1000 4400, 1160 4910"/>
+      <path class="cable-signal" d="M 350 -50 C 320 800, 480 2000, 700 3200 S 1000 4400, 1160 4910"/>
     </g>
     <g class="bg-cable">
-      <path class="cable-sheath" d="M 1480 60 C 1280 180, 1100 400, 950 600 S 1100 760, 1230 870"/>
-      <path class="cable-signal" d="M 1480 60 C 1280 180, 1100 400, 950 600 S 1100 760, 1230 870"/>
+      <path class="cable-sheath" d="M 1500 100 C 1380 900, 1180 2400, 1000 3500 S 1100 4600, 1200 4920"/>
+      <path class="cable-signal" d="M 1500 100 C 1380 900, 1180 2400, 1000 3500 S 1100 4600, 1200 4920"/>
     </g>
     <g class="bg-cable">
-      <path class="cable-sheath" d="M 1500 320 C 1300 400, 1150 540, 1080 700 S 1180 830, 1240 880"/>
-      <path class="cable-signal" d="M 1500 320 C 1300 400, 1150 540, 1080 700 S 1180 830, 1240 880"/>
+      <path class="cable-sheath" d="M 1480 1500 C 1300 2100, 1100 2800, 1040 3700 S 1140 4650, 1220 4930"/>
+      <path class="cable-signal" d="M 1480 1500 C 1300 2100, 1100 2800, 1040 3700 S 1140 4650, 1220 4930"/>
     </g>
     <g class="bg-cable">
-      <path class="cable-sheath" d="M 720 -40 C 740 240, 820 480, 950 660 S 1150 800, 1260 890"/>
-      <path class="cable-signal" d="M 720 -40 C 740 240, 820 480, 950 660 S 1150 800, 1260 890"/>
+      <path class="cable-sheath" d="M 900 -60 C 940 1300, 900 2600, 920 3700 S 1060 4700, 1180 4920"/>
+      <path class="cable-signal" d="M 900 -60 C 940 1300, 900 2600, 920 3700 S 1060 4700, 1180 4920"/>
     </g>
     <g class="bg-cable">
-      <path class="cable-sheath" d="M -40 480 C 200 530, 500 620, 800 700 S 1100 800, 1240 870"/>
-      <path class="cable-signal" d="M -40 480 C 200 530, 500 620, 800 700 S 1100 800, 1240 870"/>
+      <path class="cable-sheath" d="M -60 2400 C 200 2900, 500 3400, 780 3900 S 1080 4700, 1200 4920"/>
+      <path class="cable-signal" d="M -60 2400 C 200 2900, 500 3400, 780 3900 S 1080 4700, 1200 4920"/>
     </g>
   </svg>
 
