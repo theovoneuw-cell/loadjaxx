@@ -30,6 +30,34 @@ if (!isTouch) {
     el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
+
+  // ─── Cursor trail : points orange qui suivent et fade-out ───
+  const trailLayer = document.createElement('div');
+  trailLayer.className = 'g-cursor-trail';
+  document.body.appendChild(trailLayer);
+  const TRAIL_MAX = 14;
+  const trail = [];
+  let trailTick = 0;
+  let lastMouseX = 0, lastMouseY = 0, lastTrailTs = 0;
+  window.addEventListener('mousemove', e => {
+    lastMouseX = e.clientX; lastMouseY = e.clientY;
+    const now = performance.now();
+    // throttle : 1 point toutes les 30ms
+    if (now - lastTrailTs < 30) return;
+    lastTrailTs = now;
+    const dot = document.createElement('span');
+    dot.className = 'g-cursor-trail-dot';
+    dot.style.left = e.clientX + 'px';
+    dot.style.top  = e.clientY + 'px';
+    trailLayer.appendChild(dot);
+    trail.push(dot);
+    // fade-out + remove via timeout (synchro avec CSS animation)
+    setTimeout(() => { dot.remove(); }, 700);
+    if (trail.length > TRAIL_MAX) {
+      const old = trail.shift();
+      old.remove();
+    }
+  });
 }
 
 // ── NAVBAR ────────────────────────────────────────────────────
@@ -440,15 +468,18 @@ function triggerHeroAnimations() {
 
   const tl = gsap.timeline();
 
+  // Séquence chorégraphiée : le NAME explose d'abord (héro), puis les cards
+  // arrivent une par une pour laisser le foyer principal au nom géant.
   tl
-    .to('.hero-status',       { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' }, 0.2)
-    .to('.hero-next-card',    { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.35)
-    .to('.hero-social-card',  { opacity: 1, y: 0, duration: 0.6, stagger: 0.12, ease: 'power3.out',
-        onStart: () => document.querySelectorAll('.hero-social-card').forEach(c => c.classList.add('is-in'))
-      }, 0.5)
+    .to('.hero-status',     { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' }, 0.2)
     .to('.hero-tagline',    { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' }, 0.45)
     .to('.hero-name',       { opacity: 1, y: 0, duration: 1.0, ease: 'power4.out' }, 0.55)
-    .to('.hero-bottom',     { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', clearProps: 'opacity,y' }, 0.95);
+    .to('.hero-bottom',     { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', clearProps: 'opacity,y' }, 0.95)
+    // Cards latérales : arrivent APRÈS le nom, en cascade
+    .to('.hero-next-card',  { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 1.4)
+    .to('.hero-social-card',{ opacity: 1, y: 0, duration: 0.6, stagger: 0.14, ease: 'power3.out',
+        onStart: () => document.querySelectorAll('.hero-social-card').forEach(c => c.classList.add('is-in'))
+      }, 1.75);
 
   // Parallax souris subtil sur le nom + orbs (desktop)
   if (!isTouch) {
@@ -897,18 +928,61 @@ if (!isTouch) {
   });
 }
 
+// ── Spawn vinyl confetti (utilisé par le mixer form au succès) ──
+function spawnVinylConfetti(originEl) {
+  const rect = originEl ? originEl.getBoundingClientRect() : null;
+  const x0 = rect ? rect.left + rect.width / 2  : window.innerWidth / 2;
+  const y0 = rect ? rect.top  + rect.height / 2 : window.innerHeight / 2;
+  let layer = document.querySelector('.vinyl-confetti-layer');
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.className = 'vinyl-confetti-layer';
+    document.body.appendChild(layer);
+  }
+  const N = 22;
+  for (let i = 0; i < N; i++) {
+    const v = document.createElement('div');
+    v.className = 'vinyl-confetti';
+    v.style.left = x0 + 'px';
+    v.style.top  = y0 + 'px';
+    const angle = (i / N) * Math.PI * 2;
+    const force = 120 + Math.random() * 220;
+    const vx = Math.cos(angle) * force + (Math.random() - 0.5) * 80;
+    const vr = (Math.random() > 0.5 ? 1 : -1) * (540 + Math.random() * 720);
+    v.style.setProperty('--vx', vx + 'px');
+    v.style.setProperty('--vr', vr + 'deg');
+    v.style.animationDelay = (Math.random() * 0.1) + 's';
+    v.style.animationDuration = (1.4 + Math.random() * 0.6) + 's';
+    layer.appendChild(v);
+    setTimeout(() => v.remove(), 2200);
+  }
+}
+
 // ── MIXER FORM — Booking console ──────────────────────────────
 (function mixerForm() {
   const form = document.querySelector('.mixer-form');
   if (!form) return;
 
-  // ── LEDs : s'allument quand le champ est rempli
+  // ── LEDs : s'allument quand le champ est rempli + validation inline email
   form.querySelectorAll('.mixer-channel').forEach(ch => {
     const field = ch.querySelector('input, textarea');
     if (!field) return;
-    const refresh = () => ch.classList.toggle('is-filled', !!field.value.trim());
+    const isEmail = field.type === 'email';
+    const refresh = () => {
+      const v = field.value.trim();
+      ch.classList.toggle('is-filled', !!v);
+      if (isEmail) {
+        // Validation simple, only when blurred or has @ to avoid premature red
+        const looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        const showError = v.length > 0 && !looksLikeEmail && field.dataset.blurred === '1';
+        ch.classList.toggle('is-error', showError);
+      }
+    };
     field.addEventListener('input', refresh);
     field.addEventListener('change', refresh);
+    if (isEmail) {
+      field.addEventListener('blur', () => { field.dataset.blurred = '1'; refresh(); });
+    }
     refresh();
   });
 
@@ -1035,6 +1109,8 @@ if (!isTouch) {
         form.querySelectorAll('.mixer-channel').forEach(ch => {
           if (!ch.classList.contains('mixer-channel--knob')) ch.classList.remove('is-filled');
         });
+        // 🎉 Confetti vinyles depuis le pad
+        spawnVinylConfetti(pad);
       }
       setTimeout(() => { note.textContent = ''; }, 6000);
     })
@@ -1282,6 +1358,271 @@ if (!isTouch) {
   }
 })();
 
+// ── Sticky Booking CTA ──────────────────────────────────────
+(function stickyBooking() {
+  const cta = document.getElementById('stickyBooking');
+  if (!cta) return;
+  const contactSec = document.getElementById('contact');
+  let visible = false;
+  function update() {
+    const y = window.scrollY;
+    const triggerY = window.innerHeight * 1.8; // après ~1.8 viewport scroll
+    let inContact = false;
+    if (contactSec) {
+      const r = contactSec.getBoundingClientRect();
+      inContact = r.top < window.innerHeight * 0.6;
+    }
+    const shouldShow = y > triggerY && !inContact;
+    if (shouldShow !== visible) {
+      cta.classList.toggle('visible', shouldShow);
+      visible = shouldShow;
+    }
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+
+  if (!isTouch) {
+    const cur = document.querySelector('.g-cursor');
+    if (cur) {
+      cta.addEventListener('mouseenter', () => cur.classList.add('hover'));
+      cta.addEventListener('mouseleave', () => cur.classList.remove('hover'));
+    }
+  }
+})();
+
+// ── Tour map France ───────────────────────────────────────────
+(function tourMap() {
+  const svg     = document.querySelector('.shows-map-svg');
+  const citiesG = document.getElementById('mapCities');
+  const routeEl = document.getElementById('mapRoute');
+  const countEl = document.getElementById('mapCount');
+  const popup   = document.getElementById('mapPopup');
+  if (!svg || !citiesG || !routeEl) return;
+
+  // Coordonnées approximatives des villes sur viewBox 220x240
+  const CITY_COORDS = {
+    'paris':       { x: 115, y: 48,  label: 'Paris'      },
+    'lyon':        { x: 132, y: 118, label: 'Lyon'       },
+    'bordeaux':    { x: 70,  y: 142, label: 'Bordeaux'   },
+    'montpellier': { x: 115, y: 178, label: 'Montpellier'},
+    'marseille':   { x: 143, y: 187, label: 'Marseille'  },
+    'lille':       { x: 122, y: 30,  label: 'Lille'      },
+    'strasbourg':  { x: 175, y: 70,  label: 'Strasbourg' },
+    'toulouse':    { x: 95,  y: 180, label: 'Toulouse'   },
+    'nantes':      { x: 60,  y: 105, label: 'Nantes'     },
+    'rennes':      { x: 60,  y: 80,  label: 'Rennes'     },
+    'nice':        { x: 168, y: 180, label: 'Nice'       },
+  };
+
+  function normalize(s) {
+    return (s || '')
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z]/g, '');
+  }
+
+  function buildMap() {
+    const showItems = Array.from(document.querySelectorAll('.show-item[data-date]'));
+    if (!showItems.length) return;
+    // Extrait { city, date, venue, isPast } depuis chaque show
+    const shows = showItems.map(el => {
+      const cityText = (el.querySelector('.show-city')?.textContent || '').trim();
+      const cityKey  = normalize(cityText.split(',')[0]);
+      const venue    = (el.querySelector('.show-venue')?.childNodes[0]?.textContent || '').trim();
+      const date     = el.dataset.date;
+      const isPast   = el.classList.contains('show-item--past') || new Date(date).getTime() < Date.now();
+      return { cityKey, cityText: cityText.split(',')[0].trim(), venue, date, isPast };
+    });
+
+    // Dédoublonne par ville mais garde l'occurrence la plus pertinente (upcoming en priorité)
+    const uniqueByCity = new Map();
+    shows.forEach(s => {
+      const existing = uniqueByCity.get(s.cityKey);
+      if (!existing) { uniqueByCity.set(s.cityKey, s); return; }
+      // Préfère upcoming sur past
+      if (existing.isPast && !s.isPast) uniqueByCity.set(s.cityKey, s);
+    });
+    const unique = Array.from(uniqueByCity.values());
+
+    // Ne garde que celles dont on a les coords
+    const positioned = unique
+      .filter(s => CITY_COORDS[s.cityKey])
+      .map(s => ({ ...s, ...CITY_COORDS[s.cityKey] }));
+
+    // Trie par date pour dessiner la route
+    const upcomingPositioned = positioned
+      .filter(s => !s.isPast)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Génère les dots SVG
+    citiesG.innerHTML = '';
+    positioned.forEach(s => {
+      const NS = 'http://www.w3.org/2000/svg';
+      const g  = document.createElementNS(NS, 'g');
+      g.setAttribute('class', `shows-map-city ${s.isPast ? 'past' : 'upcoming'}`);
+      g.dataset.city  = s.cityText;
+      g.dataset.venue = s.venue;
+      g.dataset.date  = s.date;
+
+      const glow = document.createElementNS(NS, 'circle');
+      glow.setAttribute('cx', s.x); glow.setAttribute('cy', s.y); glow.setAttribute('r', 14);
+      glow.setAttribute('class', 'glow');
+
+      const dot = document.createElementNS(NS, 'circle');
+      dot.setAttribute('cx', s.x); dot.setAttribute('cy', s.y); dot.setAttribute('r', 3.5);
+      dot.setAttribute('class', 'dot');
+
+      const text = document.createElementNS(NS, 'text');
+      text.setAttribute('x', s.x); text.setAttribute('y', s.y - 8);
+      text.textContent = s.label.toUpperCase();
+
+      g.appendChild(glow); g.appendChild(dot); g.appendChild(text);
+      citiesG.appendChild(g);
+
+      g.addEventListener('mouseenter', () => showPopup(s));
+      g.addEventListener('mouseleave', hidePopup);
+      g.addEventListener('click', () => {
+        const target = document.querySelector(`.show-item[data-date="${s.date}"]`);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
+
+    // Dessine la route (path qui relie les upcoming dans l'ordre chrono)
+    if (upcomingPositioned.length >= 2) {
+      let d = `M ${upcomingPositioned[0].x} ${upcomingPositioned[0].y}`;
+      for (let i = 1; i < upcomingPositioned.length; i++) {
+        const a = upcomingPositioned[i - 1];
+        const b = upcomingPositioned[i];
+        // Courbe quadratique pour fluidité
+        const mx = (a.x + b.x) / 2;
+        const my = (a.y + b.y) / 2 - 14;
+        d += ` Q ${mx} ${my} ${b.x} ${b.y}`;
+      }
+      routeEl.setAttribute('d', d);
+    }
+
+    if (countEl) countEl.textContent = upcomingPositioned.length || positioned.length;
+  }
+
+  function showPopup(s) {
+    if (!popup) return;
+    popup.querySelector('.shows-map-popup-city').textContent = s.label;
+    const d = new Date(s.date);
+    const monFR = ['Jan','Fév','Mars','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'][d.getMonth()];
+    popup.querySelector('.shows-map-popup-date').textContent =
+      `${String(d.getDate()).padStart(2,'0')} ${monFR} ${d.getFullYear()}`;
+    popup.querySelector('.shows-map-popup-venue').textContent = s.venue || '—';
+    popup.classList.add('visible');
+  }
+  function hidePopup() {
+    popup?.classList.remove('visible');
+  }
+
+  // Délai pour laisser les show-items se réorganiser par date au load
+  setTimeout(buildMap, 200);
+  // Cursor hover hook
+  if (!isTouch) {
+    const cur = document.querySelector('.g-cursor');
+    if (cur) {
+      svg.addEventListener('mouseover', (e) => {
+        if (e.target.closest('.shows-map-city')) cur.classList.add('hover');
+      });
+      svg.addEventListener('mouseout', (e) => {
+        if (e.target.closest('.shows-map-city')) cur.classList.remove('hover');
+      });
+    }
+  }
+})();
+
+// ── Quote typewriter au scroll (About) ────────────────────────
+(function quoteTypewriter() {
+  const quote = document.querySelector('.about-quote');
+  if (!quote) return;
+  const fullText = quote.textContent.trim();
+  quote.textContent = '';
+  let done = false;
+  function run() {
+    if (done) return;
+    done = true;
+    quote.classList.add('typewriting');
+    let i = 0;
+    const interval = setInterval(() => {
+      quote.textContent = fullText.slice(0, ++i);
+      if (i >= fullText.length) {
+        clearInterval(interval);
+        setTimeout(() => quote.classList.remove('typewriting'), 1500);
+      }
+    }, 55);
+  }
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { run(); io.disconnect(); } });
+    }, { threshold: 0.5 });
+    io.observe(quote);
+  } else {
+    setTimeout(run, 1500);
+  }
+})();
+
+// ── Filtres releases (Original / Remix / Feat) ────────────────
+(function releaseFilters() {
+  const btns = document.querySelectorAll('.releases-filter');
+  const grid = document.getElementById('releasesGrid');
+  if (!btns.length || !grid) return;
+
+  function getType(card) {
+    // Le type est dans .release-sub[data-type] OU dérivé du texte de la sub
+    const subWithType = card.querySelector('[data-type]');
+    if (subWithType) return subWithType.dataset.type;
+    const subText = (card.querySelector('.release-sub')?.textContent
+                  || card.querySelector('.release-feat-sub')?.textContent
+                  || '').toLowerCase();
+    if (subText.includes('remix')) return 'remix';
+    if (subText.includes('feat') || subText.includes('ft.')) return 'feat';
+    return 'original';
+  }
+
+  function recountAll() {
+    const cards = Array.from(grid.querySelectorAll('.release-card'));
+    const counts = { all: cards.length, original: 0, remix: 0, feat: 0 };
+    cards.forEach(c => {
+      const t = getType(c);
+      if (counts[t] !== undefined) counts[t]++;
+    });
+    document.querySelectorAll('.releases-filter-count').forEach(el => {
+      el.textContent = counts[el.dataset.count] ?? 0;
+    });
+  }
+
+  function applyFilter(filter) {
+    const cards = Array.from(grid.querySelectorAll('.release-card'));
+    cards.forEach(c => {
+      const t = getType(c);
+      c.classList.toggle('is-filtered-out', filter !== 'all' && t !== filter);
+    });
+  }
+
+  btns.forEach(b => b.addEventListener('click', () => {
+    btns.forEach(x => x.classList.toggle('active', x === b));
+    applyFilter(b.dataset.filter);
+  }));
+
+  recountAll();
+  // Recompte après que Spotify ait injecté ses cards (1-3s plus tard)
+  setTimeout(recountAll, 1500);
+  setTimeout(recountAll, 3500);
+
+  if (!isTouch) {
+    const cur = document.querySelector('.g-cursor');
+    if (cur) {
+      btns.forEach(b => {
+        b.addEventListener('mouseenter', () => cur.classList.add('hover'));
+        b.addEventListener('mouseleave', () => cur.classList.remove('hover'));
+      });
+    }
+  }
+})();
+
 // ── Ripple au click sur les social links ──────────────────────
 document.querySelectorAll('.hero-social-link').forEach(link => {
   link.addEventListener('click', () => {
@@ -1422,10 +1763,16 @@ document.querySelectorAll('.hero-social-link').forEach(link => {
 // ═══════════════════════════════════════════════════════════════
 (function trackPreview() {
   const grid = document.getElementById('releasesGrid');
-  const toast = document.getElementById('nowPreviewing');
+  const toast = document.getElementById('miniPlayer');
   if (!grid || !toast) return;
 
-  const toastText = toast.querySelector('.now-preview-text');
+  const toastText = document.getElementById('miniPlayerTrack');
+  const miniPlayerLink = document.getElementById('miniPlayerLink');
+  const miniPlayerProgress = document.getElementById('miniPlayerProgress');
+  const miniPlayerCanvas = document.getElementById('miniPlayerCanvas');
+  const miniCtx = miniPlayerCanvas?.getContext('2d');
+  let miniWaveRaf = null;
+  let miniWaveData = null;
   let audio = null;
   let audioCtx = null;
   let analyser = null;
@@ -1529,35 +1876,108 @@ document.querySelectorAll('.hero-social-link').forEach(link => {
   }
 
   function pumpRing() {
-    if (!audio || !ringCircle) return;
+    if (!audio) return;
     const dur = audio.duration || 30;
     const pct = Math.min(1, audio.currentTime / dur);
-    const r = parseFloat(ringCircle.getAttribute('r'));
-    const circ = 2 * Math.PI * r;
-    ringCircle.style.strokeDashoffset = circ * (1 - pct);
+    if (ringCircle) {
+      const r = parseFloat(ringCircle.getAttribute('r'));
+      const circ = 2 * Math.PI * r;
+      ringCircle.style.strokeDashoffset = circ * (1 - pct);
+    }
+    if (miniPlayerProgress) miniPlayerProgress.style.width = (pct * 100) + '%';
     ringRaf = requestAnimationFrame(pumpRing);
   }
 
-  function showToast(name) {
-    toastText.textContent = `Now previewing · ${name}`;
+  function drawMiniWave() {
+    if (!miniCtx || !analyser) { miniWaveRaf = requestAnimationFrame(drawMiniWave); return; }
+    const W = miniPlayerCanvas.width;
+    const H = miniPlayerCanvas.height;
+    if (!miniWaveData || miniWaveData.length !== analyser.frequencyBinCount) {
+      miniWaveData = new Uint8Array(analyser.frequencyBinCount);
+    }
+    analyser.getByteFrequencyData(miniWaveData);
+    miniCtx.clearRect(0, 0, W, H);
+    const bars = 48;
+    const step = Math.floor(miniWaveData.length / bars);
+    const barW = (W / bars) - 1;
+    for (let i = 0; i < bars; i++) {
+      const v = miniWaveData[i * step] / 255;
+      const h = Math.max(2, v * H * 0.95);
+      const x = i * (W / bars);
+      const y = (H - h) / 2;
+      const grad = miniCtx.createLinearGradient(0, y, 0, y + h);
+      grad.addColorStop(0,   'rgba(255, 200, 100, 0.95)');
+      grad.addColorStop(0.5, 'rgba(255, 140, 60, 0.95)');
+      grad.addColorStop(1,   'rgba(255, 90, 0, 0.6)');
+      miniCtx.fillStyle = grad;
+      miniCtx.fillRect(x, y, barW, h);
+    }
+    miniWaveRaf = requestAnimationFrame(drawMiniWave);
+  }
+
+  function showToast(name, card) {
+    toastText.textContent = name;
+    if (miniPlayerLink && card?.href) miniPlayerLink.href = card.href;
     toast.classList.add('visible');
+    toast.setAttribute('aria-hidden', 'false');
+    if (miniWaveRaf) cancelAnimationFrame(miniWaveRaf);
+    drawMiniWave();
   }
   function hideToast() {
     toast.classList.remove('visible');
+    toast.setAttribute('aria-hidden', 'true');
+    if (miniWaveRaf) cancelAnimationFrame(miniWaveRaf);
+    miniWaveRaf = null;
+    if (miniCtx) miniCtx.clearRect(0, 0, miniPlayerCanvas.width, miniPlayerCanvas.height);
+    if (miniPlayerProgress) miniPlayerProgress.style.width = '0%';
   }
 
-  function startPreview(card) {
+  const TARGET_VOL = 0.55;
+  function fadeAudio(toVol, ms) {
+    return new Promise(resolve => {
+      if (!audio) return resolve();
+      const startVol = audio.volume;
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min(1, (now - start) / ms);
+        audio.volume = startVol + (toVol - startVol) * t;
+        if (t < 1) requestAnimationFrame(step);
+        else resolve();
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  async function startPreview(card) {
     const url = card.dataset.preview;
     const name = card.dataset.track || 'Track';
     if (!url) return;
-    stopPreview();
+
+    // Si on est déjà en train de jouer une autre piste → crossfade smooth
+    const isCrossfade = audio && !audio.paused && currentCard && currentCard !== card;
+    if (isCrossfade) {
+      // Fade out l'actuel sans tout couper proprement
+      const oldCard = currentCard;
+      const oldRingSvg = ringSvg;
+      fadeAudio(0, 180).then(() => {
+        try { audio.pause(); } catch(e){}
+        // Nettoie l'ancienne card visuel
+        if (oldCard) oldCard.classList.remove('is-previewing');
+        if (oldRingSvg && oldRingSvg.parentNode) oldRingSvg.parentNode.removeChild(oldRingSvg);
+      });
+      // On poursuit immédiatement avec la nouvelle piste sans attendre le fade-out
+    } else {
+      stopPreview();
+    }
+
     currentCard = card;
     card.classList.add('is-previewing');
     grid.classList.add('previewing');
-    showToast(name);
+    showToast(name, card);
     buildRing(card);
 
     ensureAudio();
+    audio.volume = isCrossfade ? 0 : TARGET_VOL;
     audio.src = url;
     audio.currentTime = 0;
     const playPromise = audio.play();
@@ -1565,10 +1985,10 @@ document.querySelectorAll('.hero-social-link').forEach(link => {
       playPromise.then(() => {
         ensureCtx();
         if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        if (isCrossfade) fadeAudio(TARGET_VOL, 280);
         rmsRaf = requestAnimationFrame(pumpRms);
         ringRaf = requestAnimationFrame(pumpRing);
       }).catch(() => {
-        // Autoplay block — show toast quand même mais sans audio
         rmsRaf = requestAnimationFrame(pumpRms);
         ringRaf = requestAnimationFrame(pumpRing);
       });

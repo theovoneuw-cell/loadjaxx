@@ -202,24 +202,24 @@
   <div class="marquee-section">
     <div class="marquee-track">
       <div class="marquee-set" aria-hidden="false">
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
       </div>
       <div class="marquee-set" aria-hidden="true">
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
-        <div class="marquee-item">LOADJAXX<span>//</span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
+        <div class="marquee-item">LOADJAXX<span class="marquee-sep" data-sep="vinyl"></span></div>
       </div>
     </div>
   </div>
@@ -308,6 +308,15 @@
         <span class="releases-streams-label">streams cumulés</span>
         <div class="releases-streams-bar"></div>
       </div>
+
+      <!-- Filtres -->
+      <div class="releases-filters" role="tablist">
+        <button class="releases-filter active" data-filter="all">Tous <span class="releases-filter-count" data-count="all">0</span></button>
+        <button class="releases-filter" data-filter="original">Original <span class="releases-filter-count" data-count="original">0</span></button>
+        <button class="releases-filter" data-filter="remix">Remix <span class="releases-filter-count" data-count="remix">0</span></button>
+        <button class="releases-filter" data-filter="feat">Feat <span class="releases-filter-count" data-count="feat">0</span></button>
+      </div>
+
       <div class="releases-grid" id="releasesGrid">
         <a href="https://linktr.ee/loadjaxx" target="_blank" class="release-card release-card--feat">
           <div class="release-badge-new">New</div>
@@ -375,6 +384,38 @@
 
     <!-- Hero "Next show" — rempli par JS depuis le 1er show upcoming -->
     <div class="shows-featured container" id="showsFeatured"></div>
+
+    <!-- Carte France interactive — tour stylisé -->
+    <div class="container shows-map-wrap">
+      <div class="shows-map">
+        <div class="shows-map-head">
+          <span class="shows-map-tag">⦿ Tour map</span>
+          <span class="shows-map-info"><span id="mapCount">—</span> villes · 2026</span>
+        </div>
+        <svg viewBox="0 0 220 240" class="shows-map-svg" aria-hidden="true">
+          <defs>
+            <radialGradient id="cityGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"  stop-color="#FF5A00" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#FF5A00" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <!-- Contour France simplifié -->
+          <path class="shows-map-outline" d="M 105 15 Q 135 18 152 32 Q 175 50 182 85 Q 188 125 178 160 Q 168 195 142 215 Q 110 225 78 215 Q 50 198 36 168 Q 22 135 26 95 Q 32 60 55 38 Q 78 20 105 15 Z"/>
+          <!-- Route (path entre les dots, dessinée par JS) -->
+          <path class="shows-map-route" id="mapRoute" d=""/>
+          <!-- Dots des villes (injectés par JS) -->
+          <g id="mapCities"></g>
+        </svg>
+        <!-- Légende popup au hover (mise à jour par JS) -->
+        <div class="shows-map-popup" id="mapPopup" aria-hidden="true">
+          <div class="shows-map-popup-city">—</div>
+          <div class="shows-map-popup-meta">
+            <span class="shows-map-popup-date">—</span>
+            <span class="shows-map-popup-venue">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Filtres -->
     <div class="container shows-filters-wrap">
@@ -722,6 +763,22 @@
     </button>
   </aside>
 
+  <!-- STICKY BOOKING CTA -->
+  <a href="#contact" id="stickyBooking" class="sticky-booking" aria-label="Booker une date">
+    <span class="sticky-booking-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    </span>
+    <span class="sticky-booking-label">
+      <span class="sticky-booking-top">Disponible</span>
+      <span class="sticky-booking-main">Booker une date <span class="sticky-arrow">→</span></span>
+    </span>
+  </a>
+
   <!-- CRATE MODE invite -->
   <button id="crateInvite" class="crate-invite" aria-label="Activer Crate Mode (touche K)">
     <span class="crate-invite-icon">
@@ -737,10 +794,27 @@
     <span class="crate-invite-close" aria-label="Fermer">×</span>
   </button>
 
-  <!-- NOW PREVIEWING toast -->
-  <div id="nowPreviewing" class="now-preview" aria-live="polite">
-    <span class="now-preview-eq"><i></i><i></i><i></i><i></i></span>
-    <span class="now-preview-text">—</span>
+  <!-- MINI-PLAYER sticky bottom (apparaît pendant preview) -->
+  <div id="miniPlayer" class="mini-player" aria-live="polite" aria-hidden="true">
+    <div class="mini-player-inner">
+      <div class="mini-player-eq" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i>
+      </div>
+      <div class="mini-player-meta">
+        <div class="mini-player-label">Now previewing</div>
+        <div class="mini-player-track" id="miniPlayerTrack">—</div>
+      </div>
+      <div class="mini-player-wave">
+        <canvas id="miniPlayerCanvas" width="280" height="36"></canvas>
+        <div class="mini-player-progress" id="miniPlayerProgress"></div>
+      </div>
+      <a href="#" target="_blank" rel="noopener" class="mini-player-link" id="miniPlayerLink" aria-label="Ouvrir sur Spotify">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12C24 5.4 18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/>
+        </svg>
+        <span>Spotify</span>
+      </a>
+    </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
