@@ -572,8 +572,9 @@ function initScrollAnimations() {
     });
   });
 
-  // Titres — split en mots
-  gsap.utils.toArray('.section-title, .about-text h2, .epk-title, .contact-left h2, .shows-header h2, .releases-intro h2').forEach(el => {
+  // Titres — split en mots ('.contact-left h2' retiré : déjà animé par
+  // l'anim .contact-left > * plus bas, double trigger créait du flicker)
+  gsap.utils.toArray('.section-title, .about-text h2, .epk-title, .shows-header h2, .releases-intro h2').forEach(el => {
     gsap.from(el, {
       scrollTrigger: { trigger: el, start: 'top 92%' },
       opacity: 0,
@@ -913,14 +914,18 @@ function initScrollAnimations() {
     y: -40, ease: 'none'
   });
 
-  // Contact
+  // Contact — immediateRender: false évite le flash apparait/disparait/réapparait
+  // (sans ça, gsap.from applique opacity:0 dès le mount JS même si l'élément
+  // est déjà dans le viewport — créait le flicker visible mobile)
   gsap.from('.contact-left > *', {
-    scrollTrigger: { trigger: '#contact', start: 'top 88%' },
+    scrollTrigger: { trigger: '#contact', start: 'top 88%', once: true },
+    immediateRender: false,
     opacity: 0, x: mob ? 0 : -50, y: mob ? 30 : 0,
     duration: 0.7, stagger: 0.12, ease: 'power3.out'
   });
   gsap.from('.contact-form', {
-    scrollTrigger: { trigger: '#contact', start: 'top 88%' },
+    scrollTrigger: { trigger: '#contact', start: 'top 88%', once: true },
+    immediateRender: false,
     opacity: 0, x: mob ? 0 : 50, y: mob ? 40 : 0,
     duration: 0.8, delay: mob ? 0.1 : 0, ease: 'power3.out'
   });
