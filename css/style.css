@@ -2391,7 +2391,127 @@ h1, h2, h3 {
 }
 
 /* ── CONTACT ─────────────────────────────────────────────── */
-#contact { background: var(--bg2); padding: 140px 0; }
+#contact { background: var(--bg2); padding: 140px 0; position: relative; overflow: hidden; }
+
+/* ═══════════════════════════════════════════════════════════
+   CONTACT CABLES — câbles audio qui se branchent dans le mixer
+   ═══════════════════════════════════════════════════════════ */
+.contact-cables {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.contact-cable {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 14 16;
+  filter: drop-shadow(0 0 6px rgba(255, 90, 0, 0.5));
+  animation: cableSignal 3.5s linear infinite;
+}
+.contact-cable:nth-child(2) { animation-duration: 4.5s; animation-delay: -0.4s; }
+.contact-cable:nth-child(3) { animation-duration: 3.2s; animation-delay: -1.6s; }
+.contact-cable:nth-child(4) { animation-duration: 5s;   animation-delay: -2.4s; }
+@keyframes cableSignal {
+  to { stroke-dashoffset: -180; }
+}
+
+/* Plugs SVG (à la pointe de chaque câble) */
+.contact-cable-plugs .plug-ring {
+  fill: #0d0d0d;
+  stroke: rgba(255, 90, 0, 0.6);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 10px rgba(255, 90, 0, 0.85));
+}
+.contact-cable-plugs .plug-tip {
+  fill: url(#jackTip);
+  animation: plugBreathe 2.2s ease-in-out infinite;
+}
+@keyframes plugBreathe {
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 1; }
+}
+
+/* Mixer-form au-dessus des câbles */
+.contact-grid { position: relative; z-index: 1; }
+.mixer-form { position: relative; }
+
+/* Jacks 3.5mm visibles sur le top du mixer */
+.mixer-jacks {
+  position: absolute;
+  top: -14px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 16%;
+  pointer-events: none;
+  z-index: 3;
+}
+.mixer-jack {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #2a2a2a 0%, #0a0a0a 80%);
+  border: 1.5px solid rgba(255, 90, 0, 0.5);
+  box-shadow:
+    0 0 14px rgba(255, 90, 0, 0.4),
+    inset 0 0 4px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.mixer-jack::before {
+  /* Bague intermédiaire (style jack 3.5mm tip-ring-sleeve) */
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 90, 0, 0.35);
+}
+.mixer-jack::after {
+  /* Tip central orange (où le signal passe) */
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #FFA866 0%, #FF6B1A 55%, #cc4400 100%);
+  box-shadow: 0 0 8px rgba(255, 90, 0, 0.9);
+  animation: jackPulse 2.8s ease-in-out infinite;
+}
+.mixer-jack:nth-child(2)::after { animation-delay: -0.6s; }
+.mixer-jack:nth-child(3)::after { animation-delay: -1.2s; }
+.mixer-jack:nth-child(4)::after { animation-delay: -1.8s; }
+@keyframes jackPulse {
+  0%, 100% { transform: scale(1);   opacity: 0.92; }
+  50%      { transform: scale(0.88); opacity: 1; }
+}
+.mixer-jack-label {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Inter', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 90, 0, 0.55);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Push down du mixer-header pour ne pas chevaucher les jacks */
+.mixer-form .mixer-header { margin-top: 18px; }
+
+@media (max-width: 900px) {
+  .contact-cables { display: none; }
+  .mixer-jacks { display: none; }
+  .mixer-form .mixer-header { margin-top: 0; }
+}
+
 
 .contact-grid {
   display: grid;

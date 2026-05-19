@@ -294,145 +294,106 @@ function _heroFallback() {
   let envSnare = 0;
   let envBreath = 0.8;
 
+  // ── Audio bars equalizer — fresh, modern, DAW-style ──────
+  const BAR_COUNT = 84;
+  const BAR_GAP   = 3;
+  let peakHolds = new Float32Array(BAR_COUNT);
+
   function draw() {
-    ctx.clearRect(0, 0, W, H);
     const { off, octx: oc } = getOff();
     oc.clearRect(0, 0, W, H);
 
     // ── Beat envelopes at 128 BPM
-    const beatPhase  = (t / BEAT) % 1;           // 0→1 every beat (kick on every beat)
-    const snarePhase = (t / BEAT * 0.5 + 0.5) % 1; // snare on 2 & 4 (offset half beat)
-
+    const beatPhase  = (t / BEAT) % 1;
+    const snarePhase = (t / BEAT * 0.5 + 0.5) % 1;
     const kickTarget  = Math.exp(-beatPhase  * 8) * 0.9;
     const snareTarget = Math.exp(-snarePhase * 10) * 0.45;
-
-    // Slew limiters — kick attacks fast, releases slow
     envKick  += (kickTarget  > envKick  ? 0.55 : 0.06) * (kickTarget  - envKick);
     envSnare += (snareTarget > envSnare ? 0.40 : 0.05) * (snareTarget - envSnare);
-
-    // Global breathing ~0.5Hz — slow undulation
     envBreath += (0.78 + 0.22 * Math.sin(t * 0.022) - envBreath) * 0.03;
-
     const amp = envBreath + envKick * 0.28 + envSnare * 0.10 + (window._previewBoost || 0) * 0.55;
-    const cy  = H * 0.5;
 
-    // ── Build top envelope as a filled shape (waveform silhouette)
-    // Upper half
-    oc.beginPath();
-    oc.moveTo(0, cy);
+    // Baseline placée vers le bas pour donner du poids aux barres
+    const cy = H * 0.78;
 
-    for (let x = 0; x < W; x++) {
-      const n   = noiseProfile[x];
-      // Multiple time-varying layers scrolling at different speeds → organic movement
-      const slow  = Math.sin(t * 0.008 + x * 0.004)  * 0.10;
-      const mid   = Math.sin(t * 0.025 + x * 0.011)  * 0.07;
-      const fast  = Math.sin(t * 0.055 + x * 0.022)  * 0.04;
-      const micro = Math.sin(t * 0.120 + x * 0.055)  * 0.02;
+    // ── Largeur d'une barre adaptée au viewport
+    const totalGaps = BAR_GAP * (BAR_COUNT - 1);
+    const barW = Math.max(2, (W - totalGaps) / BAR_COUNT);
+    const noiseStep = Math.floor(noiseProfile.length / BAR_COUNT);
 
-      // Frequency bands: left side reacts to kick (sub), right side floats (highs)
-      const freqW  = x / W;
-      const kickW  = (1 - freqW) * envKick * 0.35;   // subs pump left
-      const snareW = freqW * envSnare * 0.20;          // highs lift on snare
+    for (let i = 0; i < BAR_COUNT; i++) {
+      const x = i * (barW + BAR_GAP);
+      const xRatio = i / (BAR_COUNT - 1);
 
-      const h = (n + slow + mid + fast + micro + kickW + snareW) * amp * cy * 0.62;
-      oc.lineTo(x, cy - Math.max(1, h));
+      // Échantillonne le bruit + multiples couches sin pour mouvement organique
+      const n     = noiseProfile[Math.min(noiseProfile.length - 1, i * noiseStep)];
+      const slow  = Math.sin(t * 0.012 + i * 0.42) * 0.12;
+      const mid   = Math.sin(t * 0.034 + i * 1.07) * 0.07;
+      const fast  = Math.sin(t * 0.061 + i * 2.31) * 0.04;
+
+      // Bandes de fréquences : kick à gauche, snare à droite
+      const kickW  = (1 - xRatio) * envKick * 0.42;
+      const snareW = xRatio * envSnare * 0.26;
+
+      const hRaw = (n + slow + mid + fast + kickW + snareW) * amp;
+      const h = Math.max(3, hRaw * cy * 0.78);
+      const yTop = cy - h;
+
+      // Peak hold : suit la barre vers le haut rapide, descend lentement
+      if (h > peakHolds[i]) peakHolds[i] = h;
+      else peakHolds[i] *= 0.974;
+
+      // ── Barre principale avec gradient vertical
+      const grad = oc.createLinearGradient(0, yTop, 0, cy);
+      grad.addColorStop(0,    'rgba(255, 200, 110, 0.9)');
+      grad.addColorStop(0.35, 'rgba(255, 130, 45, 0.78)');
+      grad.addColorStop(1,    'rgba(255, 70, 0, 0.45)');
+      oc.fillStyle = grad;
+      if (oc.roundRect) {
+        oc.beginPath();
+        oc.roundRect(x, yTop, barW, h, [barW * 0.5, barW * 0.5, 0, 0]);
+        oc.fill();
+      } else {
+        oc.fillRect(x, yTop, barW, h);
+      }
+
+      // ── Peak hold marker — petit trait blanc qui flotte au sommet
+      if (peakHolds[i] > 6) {
+        const peakY = cy - peakHolds[i];
+        oc.fillStyle = `rgba(255, 230, 200, ${Math.min(1, peakHolds[i] / 24)})`;
+        oc.fillRect(x, peakY - 2.5, barW, 2);
+      }
+
+      // ── Reflet doux en dessous (mirror court)
+      const reflectH = h * 0.32;
+      const refGrad = oc.createLinearGradient(0, cy, 0, cy + reflectH);
+      refGrad.addColorStop(0, 'rgba(255, 110, 30, 0.22)');
+      refGrad.addColorStop(1, 'rgba(255, 90, 0, 0)');
+      oc.fillStyle = refGrad;
+      oc.fillRect(x, cy, barW, reflectH);
     }
-    oc.lineTo(W, cy);
-    oc.closePath();
 
-    // Fill: gradient doux — orange profond en bas, fade en peaks
-    const fillGrad = oc.createLinearGradient(0, cy, 0, 0);
-    fillGrad.addColorStop(0,    'rgba(255,80,10,0.55)');
-    fillGrad.addColorStop(0.4,  'rgba(255,110,30,0.35)');
-    fillGrad.addColorStop(0.8,  'rgba(255,150,60,0.18)');
-    fillGrad.addColorStop(1,    'rgba(255,180,90,0)');
-    oc.fillStyle = fillGrad;
-    oc.fill();
-
-    // ── Bright top edge line — the "outline" of the waveform
-    oc.beginPath();
-    for (let x = 0; x < W; x++) {
-      const n     = noiseProfile[x];
-      const slow  = Math.sin(t * 0.008 + x * 0.004) * 0.10;
-      const mid   = Math.sin(t * 0.025 + x * 0.011) * 0.07;
-      const fast  = Math.sin(t * 0.055 + x * 0.022) * 0.04;
-      const micro = Math.sin(t * 0.120 + x * 0.055) * 0.02;
-      const freqW = x / W;
-      const kickW  = (1 - freqW) * envKick * 0.35;
-      const snareW = freqW * envSnare * 0.20;
-      const h = (n + slow + mid + fast + micro + kickW + snareW) * amp * cy * 0.62;
-      if (x === 0) oc.moveTo(x, cy - Math.max(1, h));
-      else         oc.lineTo(x, cy - Math.max(1, h));
-    }
-    // Top edge line — la "signature" fine et lumineuse
-    oc.strokeStyle = `rgba(255,180,90,${0.75 + envKick * 0.25})`;
-    oc.lineWidth   = 1;
-    oc.shadowColor = 'rgba(255,140,40,0.5)';
-    oc.shadowBlur  = 6;
-    oc.stroke();
-    oc.shadowBlur  = 0;
-
-    // ── Mirror below: flip & shrink + fade
-    oc.save();
-    oc.translate(0, cy);
-    oc.scale(1, -0.38);
-    oc.translate(0, -cy);
-
-    oc.beginPath();
-    oc.moveTo(0, cy);
-    for (let x = 0; x < W; x++) {
-      const n     = noiseProfile[x];
-      const slow  = Math.sin(t * 0.008 + x * 0.004) * 0.10;
-      const mid   = Math.sin(t * 0.025 + x * 0.011) * 0.07;
-      const fast  = Math.sin(t * 0.055 + x * 0.022) * 0.04;
-      const micro = Math.sin(t * 0.120 + x * 0.055) * 0.02;
-      const freqW = x / W;
-      const kickW  = (1 - freqW) * envKick * 0.35;
-      const snareW = freqW * envSnare * 0.20;
-      const h = (n + slow + mid + fast + micro + kickW + snareW) * amp * cy * 0.62;
-      oc.lineTo(x, cy - Math.max(1, h));
-    }
-    oc.lineTo(W, cy);
-    oc.closePath();
-
-    const refGrad = oc.createLinearGradient(0, cy, 0, 0);
-    refGrad.addColorStop(0,   'rgba(255,80,10,0.18)');
-    refGrad.addColorStop(0.6, 'rgba(255,100,20,0.07)');
-    refGrad.addColorStop(1,   'rgba(255,80,10,0)');
-    oc.fillStyle = refGrad;
-    oc.fill();
-    oc.restore();
-
-    // ── Beat flash: orange glow at baseline on kick — adouci
-    if (envKick > 0.05) {
-      const fg = oc.createRadialGradient(W/2, cy, 0, W/2, cy, W * 0.5);
-      fg.addColorStop(0,   `rgba(255,90,0,${envKick * 0.06})`);
-      fg.addColorStop(1,   'rgba(255,60,0,0)');
+    // ── Beat flash : halo radial au centre sur le kick
+    if (envKick > 0.08) {
+      const fg = oc.createRadialGradient(W / 2, cy, 0, W / 2, cy, W * 0.45);
+      fg.addColorStop(0, `rgba(255, 140, 40, ${envKick * 0.14})`);
+      fg.addColorStop(1, 'rgba(255, 90, 0, 0)');
       oc.fillStyle = fg;
-      oc.fillRect(0, cy - 30, W, 60);
+      oc.fillRect(0, cy - 70, W, 140);
     }
 
-    // ── Horizontal edge fade
+    // ── Fade horizontal aux bords
     oc.globalCompositeOperation = 'destination-in';
     const fade = oc.createLinearGradient(0, 0, W, 0);
     fade.addColorStop(0,    'rgba(0,0,0,0)');
-    fade.addColorStop(0.05, 'rgba(0,0,0,1)');
-    fade.addColorStop(0.95, 'rgba(0,0,0,1)');
+    fade.addColorStop(0.06, 'rgba(0,0,0,1)');
+    fade.addColorStop(0.94, 'rgba(0,0,0,1)');
     fade.addColorStop(1,    'rgba(0,0,0,0)');
     oc.fillStyle = fade;
     oc.fillRect(0, 0, W, H);
     oc.globalCompositeOperation = 'source-over';
 
-    // ── Vertical top fade (waveform disappears toward top of canvas)
-    oc.globalCompositeOperation = 'destination-in';
-    const topFade = oc.createLinearGradient(0, 0, 0, H);
-    topFade.addColorStop(0,    'rgba(0,0,0,0)');
-    topFade.addColorStop(0.18, 'rgba(0,0,0,1)');
-    topFade.addColorStop(1,    'rgba(0,0,0,1)');
-    oc.fillStyle = topFade;
-    oc.fillRect(0, 0, W, H);
-    oc.globalCompositeOperation = 'source-over';
-
+    ctx.clearRect(0, 0, W, H);
     ctx.drawImage(off, 0, 0);
     t += 1;
     raf = requestAnimationFrame(draw);
@@ -1313,22 +1274,57 @@ function spawnVinylConfetti(originEl) {
     });
   });
 
-  try {
-    const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET) },
-      body: 'grant_type=client_credentials'
-    });
-    if (!tokenRes.ok) throw new Error('Token ' + tokenRes.status);
-    const { access_token } = await tokenRes.json();
+  // ── Cache localStorage : évite de hammer l'API Spotify à chaque reload
+  //    et préserve les miniatures même quand on hit le rate-limit
+  const CACHE_KEY = 'loadjaxx_spotify_v1';
+  const CACHE_TTL = 60 * 60 * 1000; // 60 minutes
 
-    const albumsRes = await fetch(
-      `https://api.spotify.com/v1/artists/${ARTIST_ID}/albums?include_groups=album,single&market=FR&limit=9`,
-      { headers: { 'Authorization': `Bearer ${access_token}` } }
-    );
-    if (!albumsRes.ok) throw new Error('Albums ' + albumsRes.status);
-    const { items } = await albumsRes.json();
-    if (!items?.length) return;
+  function readCache(allowExpired) {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data?.items?.length) return null;
+      const fresh = Date.now() - data.ts < CACHE_TTL;
+      return (fresh || allowExpired) ? data : null;
+    } catch (e) { return null; }
+  }
+  function writeCache(items) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items })); } catch (e) {}
+  }
+
+  let items;
+  // 1. Cache frais → on l'utilise direct, pas d'appel API
+  const cached = readCache(false);
+  if (cached) {
+    items = cached.items;
+  }
+
+  try {
+    if (!items) {
+      const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET) },
+        body: 'grant_type=client_credentials'
+      });
+      if (!tokenRes.ok) throw new Error('Token ' + tokenRes.status);
+      const { access_token } = await tokenRes.json();
+
+      const albumsRes = await fetch(
+        `https://api.spotify.com/v1/artists/${ARTIST_ID}/albums?include_groups=album,single&market=FR&limit=9`,
+        { headers: { 'Authorization': `Bearer ${access_token}` } }
+      );
+      if (!albumsRes.ok) throw new Error('Albums ' + albumsRes.status);
+      const data = await albumsRes.json();
+      items = data?.items;
+      if (items?.length) writeCache(items);
+    }
+    if (!items?.length) {
+      // Fallback ultime : cache expiré si dispo, sinon laisse les static
+      const stale = readCache(true);
+      if (stale?.items?.length) items = stale.items;
+      else return;
+    }
 
     // Attend Deezer pour merger les previews
     const dz = await deezerPromise;
@@ -1354,7 +1350,32 @@ function spawnVinylConfetti(originEl) {
     injectCards(releases);
 
   } catch (err) {
-    console.error('[Spotify] FAILED:', err.message);
+    console.warn('[Spotify] API failed (rate-limit ?), using cache fallback :', err.message);
+    // Fallback ultime : tente le cache expiré
+    const stale = readCache(true);
+    if (stale?.items?.length) {
+      try {
+        const dz = await deezerPromise;
+        const releases = stale.items.slice(0, 9).map(item => {
+          const nameLow = item.name.toLowerCase();
+          let type;
+          if (nameLow.includes('remix')) type = 'remix';
+          else if (item.artists?.length > 1 || nameLow.includes('feat') || nameLow.includes('ft.')) type = 'feat';
+          else if (item.album_type === 'album') type = 'album';
+          else type = 'original';
+          const dzHit = findInMap(item.name, dz);
+          return {
+            name:    item.name,
+            year:    item.release_date?.slice(0,4) ?? '',
+            type,
+            url:     item.external_urls.spotify,
+            img:     item.images?.[0]?.url ?? dzHit?.cover ?? null,
+            preview: item.preview_url ?? dzHit?.preview ?? null
+          };
+        });
+        injectCards(releases);
+      } catch (e2) {}
+    }
   }
 })();
 
@@ -1421,14 +1442,15 @@ function spawnVinylConfetti(originEl) {
 
   // Init Leaflet centré sur la France
   const map = L.map(mapEl, {
-    zoomControl: false, // ajouté manuellement pour le placer bottom-right
+    zoomControl: false,        // ajouté manuellement pour le placer bottom-right
     attributionControl: false,
-    scrollWheelZoom: true,
+    scrollWheelZoom: false,    // off : pas de dézoom au scroll page
     dragging: true,
-    doubleClickZoom: true,
+    doubleClickZoom: false,    // off pour rester cohérent (zoom uniquement +/-)
     boxZoom: false,
     keyboard: false,
     tap: true,
+    touchZoom: true,           // garde le pinch-zoom mobile
   }).setView([46.6, 2.8], 5.5);
 
   // Boutons de zoom positionnés en bas à droite

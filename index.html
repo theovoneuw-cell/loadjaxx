@@ -620,6 +620,45 @@
 
   <!-- CONTACT -->
   <section id="contact">
+    <!-- Câbles audio qui traversent et se branchent dans le mixer -->
+    <svg class="contact-cables" viewBox="0 0 1200 600" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="cableGradA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#FF5A00" stop-opacity="0"/>
+          <stop offset="40%" stop-color="#FF5A00" stop-opacity="0.65"/>
+          <stop offset="100%" stop-color="#FF8C42" stop-opacity="0.95"/>
+        </linearGradient>
+        <linearGradient id="cableGradB" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#FF5A00" stop-opacity="0"/>
+          <stop offset="35%" stop-color="#FF5A00" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#FF6B1A" stop-opacity="0.85"/>
+        </linearGradient>
+        <radialGradient id="jackTip" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stop-color="#fff" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#FF6B1A"/>
+          <stop offset="100%" stop-color="#cc4400"/>
+        </radialGradient>
+      </defs>
+      <!-- Cable 1 : depuis top-left, curve longue vers jack droit -->
+      <path class="contact-cable" d="M 80 -20 C 80 180, 720 100, 720 470" stroke="url(#cableGradA)"/>
+      <!-- Cable 2 : depuis top-center, curve courte -->
+      <path class="contact-cable" d="M 400 -20 C 400 80, 820 200, 820 470" stroke="url(#cableGradB)"/>
+      <!-- Cable 3 : depuis top-right, curve descendante -->
+      <path class="contact-cable" d="M 1100 -20 C 1100 150, 920 300, 920 470" stroke="url(#cableGradA)"/>
+      <!-- Cable 4 : depuis far right -->
+      <path class="contact-cable" d="M 1220 60 C 1100 280, 1020 380, 1020 470" stroke="url(#cableGradB)"/>
+      <!-- Plugs à la pointe : couches concentriques pour l'effet jack 3.5mm -->
+      <g class="contact-cable-plugs">
+        <circle cx="720"  cy="470" r="9" class="plug-ring"/>
+        <circle cx="720"  cy="470" r="5" class="plug-tip"/>
+        <circle cx="820"  cy="470" r="9" class="plug-ring"/>
+        <circle cx="820"  cy="470" r="5" class="plug-tip"/>
+        <circle cx="920"  cy="470" r="9" class="plug-ring"/>
+        <circle cx="920"  cy="470" r="5" class="plug-tip"/>
+        <circle cx="1020" cy="470" r="9" class="plug-ring"/>
+        <circle cx="1020" cy="470" r="5" class="plug-tip"/>
+      </g>
+    </svg>
     <div class="container">
       <div class="contact-grid">
         <div class="contact-left">
@@ -639,6 +678,14 @@
         </div>
         <form class="contact-form mixer-form" name="contact" method="POST" data-netlify="true">
           <input type="hidden" name="form-name" value="contact" />
+
+          <!-- Jacks d'entrée 3.5mm : reçoivent les câbles audio -->
+          <div class="mixer-jacks" aria-hidden="true">
+            <span class="mixer-jack"><span class="mixer-jack-label">IN 01</span></span>
+            <span class="mixer-jack"><span class="mixer-jack-label">IN 02</span></span>
+            <span class="mixer-jack"><span class="mixer-jack-label">IN 03</span></span>
+            <span class="mixer-jack"><span class="mixer-jack-label">IN 04</span></span>
+          </div>
 
           <div class="mixer-header">
             <span class="mixer-brand">LDJX · BOOKING CONSOLE</span>
