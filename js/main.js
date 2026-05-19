@@ -75,7 +75,7 @@ if (heroContent) heroContent.classList.add('hero-loading');
 
 function _heroFallback() {
   if (heroContent) heroContent.classList.remove('hero-loading');
-  gsap.set('.hero-tagline,.hero-name,.hero-bottom,.hero-status,.hero-next-card',
+  gsap.set('.hero-tagline,.hero-name,.hero-bottom,.hero-status,.hero-next-card,.hero-social-card',
     { visibility: 'visible', clearProps: 'all' });
 }
 
@@ -433,15 +433,19 @@ function triggerHeroAnimations() {
   gsap.set('.hero-tagline', { visibility: 'visible', opacity: 0, x: -20 });
   gsap.set('.hero-name',    { visibility: 'visible', opacity: 0, y: 60 });
   gsap.set('.hero-bottom',  { visibility: 'visible', opacity: 0, y: 20 });
-  gsap.set('.hero-status',    { visibility: 'visible', opacity: 0, x: -20 });
-  gsap.set('.hero-next-card', { visibility: 'visible', opacity: 0, y: -16 });
+  gsap.set('.hero-status',      { visibility: 'visible', opacity: 0, x: -20 });
+  gsap.set('.hero-next-card',   { visibility: 'visible', opacity: 0, y: -16 });
+  gsap.set('.hero-social-card', { visibility: 'visible', opacity: 0, y: -12 });
   if (heroContent) heroContent.classList.remove('hero-loading');
 
   const tl = gsap.timeline();
 
   tl
-    .to('.hero-status',     { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' }, 0.2)
-    .to('.hero-next-card',  { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.35)
+    .to('.hero-status',       { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' }, 0.2)
+    .to('.hero-next-card',    { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.35)
+    .to('.hero-social-card',  { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out',
+        onStart: () => document.querySelector('.hero-social-card')?.classList.add('is-in')
+      }, 0.5)
     .to('.hero-tagline',    { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' }, 0.45)
     .to('.hero-name',       { opacity: 1, y: 0, duration: 1.0, ease: 'power4.out' }, 0.55)
     .to('.hero-bottom',     { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', clearProps: 'opacity,y' }, 0.95);
@@ -893,15 +897,129 @@ if (!isTouch) {
   });
 }
 
-// ── CONTACT FORM ──────────────────────────────────────────────
-const contactForm = document.querySelector('.contact-form');
-if (contactForm) {
-  contactForm.addEventListener('submit', function(e) {
+// ── MIXER FORM — Booking console ──────────────────────────────
+(function mixerForm() {
+  const form = document.querySelector('.mixer-form');
+  if (!form) return;
+
+  // ── LEDs : s'allument quand le champ est rempli
+  form.querySelectorAll('.mixer-channel').forEach(ch => {
+    const field = ch.querySelector('input, textarea');
+    if (!field) return;
+    const refresh = () => ch.classList.toggle('is-filled', !!field.value.trim());
+    field.addEventListener('input', refresh);
+    field.addEventListener('change', refresh);
+    refresh();
+  });
+
+  // ── Rotary knob
+  const knob       = document.getElementById('mixerKnob');
+  const indicator  = knob?.querySelector('.knob-indicator');
+  const positions  = document.getElementById('mixerKnobPositions');
+  const hiddenSubj = document.getElementById('mixerKnobInput');
+  if (knob && positions && hiddenSubj && indicator) {
+    const items     = Array.from(positions.querySelectorAll('li'));
+    const N         = items.length;
+    const ANGLE_MIN = -135;
+    const ANGLE_MAX =  135;
+    const STEP      = (ANGLE_MAX - ANGLE_MIN) / (N - 1);
+    let current = 0;
+
+    function setIndex(i, fromUser) {
+      current = Math.max(0, Math.min(N - 1, i));
+      const angle = ANGLE_MIN + current * STEP;
+      indicator.style.transform = `rotate(${angle}deg)`;
+      items.forEach((li, idx) => li.classList.toggle('active', idx === current));
+      hiddenSubj.value = items[current].dataset.value;
+      knob.setAttribute('aria-valuenow', current);
+      knob.setAttribute('aria-valuetext', items[current].textContent);
+      // LED ON (le knob a toujours une valeur valide)
+      knob.closest('.mixer-channel')?.classList.add('is-filled');
+    }
+    setIndex(0);
+
+    // Click sur les positions textuelles
+    items.forEach((li, idx) => {
+      li.addEventListener('click', () => setIndex(idx, true));
+    });
+
+    // Drag sur le knob (souris)
+    let dragging = false;
+    let startAngle = 0;
+    let startIndex = 0;
+    function angleFromEvent(e) {
+      const r = knob.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top  + r.height / 2;
+      const dx = (e.clientX || e.touches?.[0]?.clientX) - cx;
+      const dy = (e.clientY || e.touches?.[0]?.clientY) - cy;
+      return Math.atan2(dy, dx) * 180 / Math.PI;
+    }
+    knob.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      startAngle = angleFromEvent(e);
+      startIndex = current;
+      knob.setPointerCapture?.(e.pointerId);
+    });
+    knob.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const a = angleFromEvent(e);
+      let delta = a - startAngle;
+      // Wrap
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+      const steps = Math.round(delta / STEP);
+      setIndex(startIndex + steps, true);
+    });
+    const stop = () => { dragging = false; };
+    knob.addEventListener('pointerup', stop);
+    knob.addEventListener('pointercancel', stop);
+
+    // Wheel sur le knob
+    knob.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      setIndex(current + (e.deltaY > 0 ? 1 : -1), true);
+    }, { passive: false });
+
+    // Clavier
+    knob.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp')   { e.preventDefault(); setIndex(current + 1, true); }
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowDown') { e.preventDefault(); setIndex(current - 1, true); }
+    });
+  }
+
+  // ── VU meter sur le textarea
+  const msg = form.querySelector('textarea[name="message"]');
+  const vu  = form.querySelector('.mixer-vu');
+  const charCount = document.getElementById('msgCharCount');
+  if (msg && vu && charCount) {
+    const bars = vu.querySelectorAll('i');
+    const MAX = 600;
+    msg.addEventListener('input', () => {
+      const len = msg.value.length;
+      charCount.textContent = len;
+      const parent = charCount.parentNode;
+      parent.classList.toggle('warn', len > MAX * 0.8 && len <= MAX);
+      parent.classList.toggle('over', len > MAX);
+      // VU bars : remplit proportionnellement au remplissage
+      const ratio = Math.min(1, len / MAX);
+      const active = Math.floor(ratio * bars.length);
+      bars.forEach((b, i) => {
+        b.classList.toggle('on', i < active);
+        b.classList.toggle('peak', i === active - 1 && active >= bars.length - 2);
+      });
+    });
+  }
+
+  // ── Submit
+  const pad = form.querySelector('.mixer-pad');
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
     const note = document.getElementById('formNote');
-    const btn  = this.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.textContent = 'Envoi…';
+    pad.classList.add('is-pressed');
+    setTimeout(() => pad.classList.remove('is-pressed'), 250);
+    pad.disabled = true;
+    form.classList.add('is-sending');
     fetch('/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -909,20 +1027,24 @@ if (contactForm) {
     })
     .then(r => {
       note.textContent = r.ok
-        ? 'Message envoyé ! Réponse sous 48h.'
-        : 'Erreur — contactez directement sur Instagram.';
-      if (r.ok) this.reset();
+        ? '◉ MESSAGE ENVOYÉ — Réponse sous 48h.'
+        : '⚠ ERREUR — Contacte sur Instagram.';
+      if (r.ok) {
+        this.reset();
+        // Reset des LEDs
+        form.querySelectorAll('.mixer-channel').forEach(ch => {
+          if (!ch.classList.contains('mixer-channel--knob')) ch.classList.remove('is-filled');
+        });
+      }
       setTimeout(() => { note.textContent = ''; }, 6000);
-      btn.disabled = false;
-      btn.textContent = 'Envoyer le message';
     })
-    .catch(() => {
-      note.textContent = 'Erreur réseau.';
-      btn.disabled = false;
-      btn.textContent = 'Envoyer le message';
+    .catch(() => { note.textContent = '⚠ ERREUR RÉSEAU.'; })
+    .finally(() => {
+      pad.disabled = false;
+      form.classList.remove('is-sending');
     });
   });
-}
+})();
 
 // ── SPOTIFY AUTO-RELEASES (+ Deezer pour les previews) ───────
 (async function loadSpotifyReleases() {
@@ -1160,62 +1282,136 @@ if (contactForm) {
   }
 })();
 
+// ── Ripple au click sur les social links ──────────────────────
+document.querySelectorAll('.hero-social-link').forEach(link => {
+  link.addEventListener('click', () => {
+    link.classList.remove('is-clicked');
+    // Force reflow pour réarmer l'animation
+    void link.offsetWidth;
+    link.classList.add('is-clicked');
+    setTimeout(() => link.classList.remove('is-clicked'), 700);
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════
-// ── BPM SYNC ─ le site devient un instrument 128 BPM ──
+// ── CUEPOINTS SCROLL ─ Navigation typographique éditoriale ────
 // ═══════════════════════════════════════════════════════════════
-(function bpmSync() {
-  const BPM      = 128;
-  const BEAT_MS  = 60000 / BPM;             // 468.75ms
-  const BAR_MS   = BEAT_MS * 4;             // 1875ms par mesure
-  const fab      = document.getElementById('bpmSync');
-  const beatsBar = document.getElementById('bpmBeats');
-  if (!fab || !beatsBar) return;
+(function cuepointsScroll() {
+  const cue = document.getElementById('cuepoints');
+  if (!cue) return;
+  const railFill   = document.getElementById('cueRailFill');
+  const numsEl     = document.getElementById('cueMarkers');
+  const curNameEl  = cue.querySelector('.cue-current-name');
 
-  const beats = beatsBar.querySelectorAll('span');
-  document.documentElement.style.setProperty('--beat-ms', BEAT_MS + 'ms');
+  const SECTIONS = [
+    { id: 'hero',     label: 'Accueil'  },
+    { id: 'about',    label: 'À propos' },
+    { id: 'releases', label: 'Releases' },
+    { id: 'shows',    label: 'Shows'    },
+    { id: 'epk',      label: 'EPK'      },
+    { id: 'contact',  label: 'Contact'  },
+  ];
 
-  let active = localStorage.getItem('loadjaxx_bpm') === '1';
-  let rafId   = null;
-  let startT  = 0;
-  let lastBeat = -1;
+  // Sélecteurs des zones à fond sombre — le cuepoints passe en blanc dessus
+  const DARK_SELECTORS = ['#hero', '.epk-banner', 'footer'];
 
-  function tick(ts) {
-    if (!active) return;
-    if (!startT) startT = ts;
-    const elapsed = ts - startT;
-    const beatIdx = Math.floor(elapsed / BEAT_MS) % 4;
-    if (beatIdx !== lastBeat) {
-      beats.forEach((b, i) => b.classList.toggle('beat-on', i === beatIdx));
-      lastBeat = beatIdx;
+  let items = [];
+  let darkZones = [];
+  let lastActive = -1;
+  let lastDark   = null;
+
+  function build() {
+    const docH = document.documentElement.scrollHeight - window.innerHeight;
+    numsEl.innerHTML = '';
+    items = [];
+    SECTIONS.forEach((sec, i) => {
+      const el = document.getElementById(sec.id);
+      if (!el) return;
+      const top = el.offsetTop;
+      const pct = Math.max(0, Math.min(100, (top / docH) * 100));
+      const li = document.createElement('li');
+      li.className = 'cue-num';
+      li.dataset.target = sec.id;
+      li.innerHTML = `<span class="cue-num-name">${sec.label}</span><span class="cue-num-digit">${String(i + 1).padStart(2, '0')}</span>`;
+      li.addEventListener('click', () => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      numsEl.appendChild(li);
+      items.push({ el: li, sec, pct });
+    });
+    // Mesure les zones sombres (top + bottom en coords document)
+    darkZones = DARK_SELECTORS
+      .map(sel => document.querySelector(sel))
+      .filter(Boolean)
+      .map(el => {
+        const r = el.getBoundingClientRect();
+        const top = r.top + window.scrollY;
+        return { top, bottom: top + el.offsetHeight };
+      });
+  }
+  build();
+  window.addEventListener('resize', build);
+  window.addEventListener('load', build);
+
+  let raf = null;
+  function update() {
+    raf = null;
+    const docH = document.documentElement.scrollHeight - window.innerHeight;
+    const y = window.scrollY;
+    const pct = docH > 0 ? Math.max(0, Math.min(1, y / docH)) : 0;
+    railFill.style.height = (pct * 100) + '%';
+
+    // Section active = celle dont le top a déjà été dépassé (avec marge)
+    let bestIdx = 0;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].pct / 100 <= pct + 0.05) bestIdx = i;
     }
-    rafId = requestAnimationFrame(tick);
+    if (bestIdx !== lastActive) {
+      items.forEach((it, i) => it.el.classList.toggle('active', i === bestIdx));
+      const sec = items[bestIdx]?.sec;
+      if (sec && curNameEl) curNameEl.textContent = sec.label;
+      lastActive = bestIdx;
+    }
+
+    // Détection fond sombre : le centre vertical du cuepoints (≈ milieu viewport)
+    // est-il dans une zone sombre ?
+    const centerY = y + window.innerHeight / 2;
+    const isDark = darkZones.some(z => centerY >= z.top && centerY <= z.bottom);
+    if (isDark !== lastDark) {
+      cue.classList.toggle('on-dark', isDark);
+      lastDark = isDark;
+    }
+  }
+  function onScroll() {
+    if (raf) return;
+    raf = requestAnimationFrame(update);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  update();
+
+  setTimeout(() => cue.classList.add('visible'), 2400);
+
+  // ── Toggle replié / déployé (persiste en localStorage)
+  const toggle = document.getElementById('cueToggle');
+  if (toggle) {
+    const KEY = 'loadjaxx_cue_collapsed';
+    const setCollapsed = (on) => {
+      cue.classList.toggle('collapsed', on);
+      toggle.setAttribute('aria-expanded', on ? 'false' : 'true');
+      toggle.setAttribute('aria-label', on ? 'Déployer la navigation' : 'Replier la navigation');
+      try { localStorage.setItem(KEY, on ? '1' : '0'); } catch(e) {}
+    };
+    // Restaure état précédent
+    if (localStorage.getItem(KEY) === '1') setCollapsed(true);
+    toggle.addEventListener('click', () => setCollapsed(!cue.classList.contains('collapsed')));
   }
 
-  function setActive(on) {
-    active = on;
-    fab.classList.toggle('active', on);
-    beatsBar.classList.toggle('visible', on);
-    document.body.classList.toggle('bpm-sync-active', on);
-    localStorage.setItem('loadjaxx_bpm', on ? '1' : '0');
-    if (on) {
-      startT = 0; lastBeat = -1;
-      rafId = requestAnimationFrame(tick);
-    } else {
-      if (rafId) cancelAnimationFrame(rafId);
-      beats.forEach(b => b.classList.remove('beat-on'));
-    }
-  }
-
-  fab.addEventListener('click', () => setActive(!active));
-  if (active) setTimeout(() => setActive(true), 100);
-
-  // Cursor hover hook
   if (!isTouch) {
     const cur = document.querySelector('.g-cursor');
     if (cur) {
-      [fab].forEach(el => {
-        el.addEventListener('mouseenter', () => cur.classList.add('hover'));
-        el.addEventListener('mouseleave', () => cur.classList.remove('hover'));
+      cue.addEventListener('mouseover', (e) => {
+        if (e.target.closest('.cue-num, .cue-toggle')) cur.classList.add('hover');
+      });
+      cue.addEventListener('mouseout', (e) => {
+        if (e.target.closest('.cue-num, .cue-toggle')) cur.classList.remove('hover');
       });
     }
   }
@@ -1379,6 +1575,7 @@ if (contactForm) {
     }
   }
 
+  window._stopTrackPreview = () => stopPreview();
   function stopPreview() {
     if (rmsRaf) cancelAnimationFrame(rmsRaf);
     if (ringRaf) cancelAnimationFrame(ringRaf);
@@ -1425,5 +1622,183 @@ if (contactForm) {
       // Quitte la card courante → stop immédiat
       if (card === currentCard) stopPreview();
     });
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// ── CRATE MODE ─ Easter egg : K → pile de vinyles 3D ──
+// ═══════════════════════════════════════════════════════════════
+(function crateMode() {
+  const overlay     = document.getElementById('crateOverlay');
+  const counterEl   = document.getElementById('crateCounter');
+  const trackNameEl = document.getElementById('crateCurrentTrack');
+  const inviteEl    = document.getElementById('crateInvite');
+  const inviteClose = inviteEl?.querySelector('.crate-invite-close');
+  if (!overlay) return;
+
+  let active = false;
+  let cards  = [];
+  let idx    = 0;
+  let savedScroll = 0;
+  let usedOnce = localStorage.getItem('loadjaxx_crate_seen') === '1';
+
+  function getCards() {
+    return Array.from(document.querySelectorAll('#releasesGrid .release-card'));
+  }
+
+  function layout() {
+    cards.forEach((c, i) => {
+      const offset = i - idx;
+      const abs = Math.abs(offset);
+      const x  = offset * 80;
+      const z  = -abs * 140;
+      const ry = offset * -18;
+      const op = abs > 4 ? 0 : Math.max(0.1, 1 - abs * 0.18);
+      c.style.setProperty('--crate-x',  x + 'px');
+      c.style.setProperty('--crate-z',  z + 'px');
+      c.style.setProperty('--crate-ry', ry + 'deg');
+      c.style.setProperty('--crate-op', op);
+      c.style.zIndex = String(100 - abs);
+      c.classList.toggle('crate-current', i === idx);
+    });
+    if (counterEl) counterEl.textContent = `${String(idx + 1).padStart(2, '0')} / ${String(cards.length).padStart(2, '0')}`;
+    const current = cards[idx];
+    if (current && trackNameEl) {
+      const name = current.dataset.track
+        || current.querySelector('.release-title, .release-feat-title')?.textContent
+        || '—';
+      trackNameEl.textContent = name;
+    }
+  }
+
+  function hideInvite() {
+    if (!inviteEl) return;
+    inviteEl.classList.remove('visible');
+    usedOnce = true;
+    try { localStorage.setItem('loadjaxx_crate_seen', '1'); } catch(e) {}
+  }
+
+  function enter() {
+    if (active) return;
+    cards = getCards();
+    if (!cards.length) return;
+    // Stop toute preview audio en cours (crate mode prend la main)
+    if (typeof window._stopTrackPreview === 'function') window._stopTrackPreview();
+    active = true;
+    savedScroll = window.scrollY;
+    document.body.classList.add('crate-mode');
+    overlay.setAttribute('aria-hidden', 'false');
+    idx = 0;
+    layout();
+    hideInvite();
+  }
+
+  function exit() {
+    if (!active) return;
+    active = false;
+    document.body.classList.remove('crate-mode');
+    overlay.setAttribute('aria-hidden', 'true');
+    cards.forEach(c => {
+      c.style.removeProperty('--crate-x');
+      c.style.removeProperty('--crate-z');
+      c.style.removeProperty('--crate-ry');
+      c.style.removeProperty('--crate-op');
+      c.style.zIndex = '';
+      c.classList.remove('crate-current');
+    });
+    // Restore scroll position — pas de 'instant' (non-standard sur Firefox/Safari)
+    window.scrollTo(0, savedScroll);
+  }
+
+  function flip(dir) {
+    if (!active) return;
+    idx = (idx + dir + cards.length) % cards.length;
+    layout();
+  }
+
+  // ── Keybinds globaux
+  window.addEventListener('keydown', (e) => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+    if ((e.key === 'k' || e.key === 'K') && !active) { e.preventDefault(); enter(); return; }
+    if (!active) return;
+    if (e.key === 'Escape')                          { e.preventDefault(); exit(); }
+    else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { e.preventDefault(); flip(1); }
+    else if (e.key === 'ArrowLeft'  || e.key === 'q' || e.key === 'Q') { e.preventDefault(); flip(-1); }
+  });
+
+  // ── Clic sur le fond overlay (uniquement) → sortir
+  // NE PAS sortir si on clique sur les instructions ou le titre du morceau
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) exit();
+  });
+
+  // ── Clic sur une card : si pas la courante, flip vers elle au lieu d'ouvrir le lien
+  document.addEventListener('click', (e) => {
+    if (!active) return;
+    const card = e.target.closest && e.target.closest('.release-card');
+    if (!card || !cards.includes(card)) return;
+    const cardIdx = cards.indexOf(card);
+    if (cardIdx !== idx) {
+      e.preventDefault();
+      e.stopPropagation();
+      idx = cardIdx;
+      layout();
+    }
+  }, true);
+
+  // ── Swipe mobile bonus
+  let touchStartX = 0;
+  overlay.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  overlay.addEventListener('touchend', (e) => {
+    if (!active) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) flip(dx < 0 ? 1 : -1);
+  });
+
+  // ── CTA INVITE — apparition après que le user a scrollé jusqu'aux releases
+  if (inviteEl) {
+    // Click direct sur le bouton → lance le crate mode
+    inviteEl.addEventListener('click', (e) => {
+      if (e.target === inviteClose) return;
+      enter();
+    });
+    if (inviteClose) {
+      inviteClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hideInvite();
+      });
+    }
+
+    // Cursor hover hook
+    if (!isTouch) {
+      const cur = document.querySelector('.g-cursor');
+      if (cur) {
+        inviteEl.addEventListener('mouseenter', () => cur.classList.add('hover'));
+        inviteEl.addEventListener('mouseleave', () => cur.classList.remove('hover'));
+      }
+    }
+
+    // Apparition : déclenche quand la section releases entre dans le viewport
+    // — sauf si déjà utilisé / fermé dans une session précédente
+    if (!usedOnce) {
+      const releases = document.getElementById('releases');
+      if (releases && 'IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach(en => {
+            if (en.isIntersecting) {
+              setTimeout(() => {
+                if (!active && !usedOnce) inviteEl.classList.add('visible');
+              }, 600);
+              io.disconnect();
+            }
+          });
+        }, { threshold: 0.25 });
+        io.observe(releases);
+      }
+    }
   }
 })();
