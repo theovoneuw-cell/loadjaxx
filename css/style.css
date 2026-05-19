@@ -2806,13 +2806,24 @@ body.menu-open { overflow: hidden; }
     gap: 22px;
     width: 100%;
     align-items: stretch;
-    order: 2; /* name + stats juste après le status, AVANT les cards → photo plus visible */
+    order: 2;
   }
-  /* Order : status → name+stats → next-show → plateformes → réseaux */
+  /* Order : status → name+stats → WAVEFORM → next-show → plateformes → réseaux */
   .hero-status                 { order: 1; }
-  .hero-next-card              { order: 3; }
-  .hero-social-card--platforms { order: 4; }
-  .hero-social-card--socials   { order: 5; }
+  #heroWave                    { order: 3; }
+  .hero-next-card              { order: 4; }
+  .hero-social-card--platforms { order: 5; }
+  .hero-social-card--socials   { order: 6; }
+  /* Waveform sortie du fond absolu — devient un visualiseur en flow entre le name et les cards */
+  #heroWave {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    height: 84px !important;
+    opacity: 0.9 !important;
+    margin: 4px 0 8px !important;
+  }
   .hero-name { font-size: clamp(58px, 18vw, 100px); text-align: left; }
   .hero-cta { gap: 14px; flex-wrap: wrap; }
   /* Photo plein écran centrée sur le visage du DJ (top-right de l'image source)
