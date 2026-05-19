@@ -2726,29 +2726,29 @@ body.menu-open { overflow: hidden; }
   .nav-burger { display: flex; z-index: 10001; position: relative; }
   /* Cache les vieux liens nav inline — on utilise #mobileMenu maintenant */
   .nav-links { display: none !important; }
-  /* ── HERO MOBILE : layout vertical en flex column, tout visible ─── */
+  /* ── HERO MOBILE : layout vertical en flex column, cards COMPACTES au-dessus ─── */
   #hero {
     min-height: auto;
     height: auto;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding: 96px 24px 60px;
+    padding: 92px 20px 50px;
     overflow: visible;
-    gap: 18px;
+    gap: 12px;
   }
   .hero-content {
     padding: 0;
     gap: 22px;
     width: 100%;
     align-items: stretch;
-    order: 2; /* après status, avant les cards */
+    order: 5; /* hero-content (name + tagline + stats) en DERNIER */
   }
-  /* Order des éléments en mobile : status → name+stats → next-show → platforms → réseaux */
-  .hero-status        { order: 1; }
-  .hero-next-card     { order: 3; }
-  .hero-social-card--platforms { order: 4; }
-  .hero-social-card--socials   { order: 5; }
+  /* Order : status → next-show → plateformes → réseaux → name+stats */
+  .hero-status                 { order: 1; }
+  .hero-next-card              { order: 2; }
+  .hero-social-card--platforms { order: 3; }
+  .hero-social-card--socials   { order: 4; }
   .hero-name { font-size: clamp(58px, 18vw, 100px); text-align: left; }
   .hero-cta { gap: 14px; flex-wrap: wrap; }
   /* Photo plein écran centrée sur le visage du DJ (top-right de l'image source)
@@ -2771,33 +2771,70 @@ body.menu-open { overflow: hidden; }
   }
   .hero-status-line2 { display: inline; }
 
-  /* Next-show card en flow vertical (pas absolute) */
+  /* Next-show card COMPACTE */
   .hero-next-card {
     display: block;
-    position: relative;
-    top: auto; left: auto;
+    position: relative !important;
+    top: auto !important; left: auto !important;
     width: 100%;
     max-width: none;
     min-width: 0;
+    padding: 12px 14px;
   }
+  .hero-next-label { font-size: 8px; letter-spacing: 2px; margin-bottom: 6px; }
+  .hero-next-day { font-size: 28px; }
+  .hero-next-mon { font-size: 10px; letter-spacing: 1.6px; }
+  .hero-next-meta { font-size: 10px; padding-top: 8px; margin-top: 2px; }
 
-  /* Cards Plateformes + Réseaux en flow */
+  /* Plateformes + Réseaux — visuellement MERGED en 1 card */
   .hero-social-card,
   .hero-social-card--platforms,
   .hero-social-card--socials {
     display: block;
-    position: relative;
-    top: auto; left: auto;
+    position: relative !important;
+    top: auto !important; left: auto !important;
     width: 100%;
     max-width: none;
+    padding: 10px 14px 12px;
   }
+  /* Plateformes : coin inférieur droit/gauche carré, pas de margin bottom */
+  .hero-social-card--platforms {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  /* Réseaux : coin supérieur carré, collé au bloc plateformes */
+  .hero-social-card--socials {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: none;
+    margin-top: -12px; /* annule le gap entre les 2 cards */
+  }
+  /* Header compact */
+  .hero-social-card .hero-social-head { margin-bottom: 10px; gap: 6px; }
+  .hero-social-title { font-size: 8px; letter-spacing: 2px; }
+  /* Icônes plus compactes */
+  .hero-social-card .hero-social-link { width: 36px; height: 36px; }
+  .hero-social-card .hero-social-link svg { width: 17px; height: 17px; }
+  /* Réseaux : icônes alignées à gauche, plus compactes (pas 46px) */
   .hero-social-card--socials .hero-social-grid {
     justify-content: flex-start;
-    gap: 18px;
+    gap: 14px;
   }
+  .hero-social-card--socials .hero-social-link {
+    width: 36px;
+    height: 36px;
+  }
+  .hero-social-card--socials .hero-social-link svg {
+    width: 17px;
+    height: 17px;
+  }
+  /* EQ plus discret dans les cards */
+  .hero-social-eq { height: 10px; gap: 2px; }
+  .hero-social-eq i { width: 2px; }
 
-  /* Stats et bottom restent en flow vertical */
-  .hero-tagline { font-size: 9px; letter-spacing: 1.5px; }
+  /* Tagline cachée sur mobile (redondante avec le status badge déjà au-dessus) */
+  .hero-tagline { display: none; }
   .hero-bottom { gap: 18px; flex-direction: column; align-items: flex-start; }
   .hero-stats { gap: 14px; flex-wrap: wrap; }
   .hero-stat b { font-size: 17px; }
@@ -2908,10 +2945,17 @@ body.menu-open { overflow: hidden; }
     background:
       linear-gradient(to top, #0a0a0a 0%, rgba(10,10,10,0.6) 38%, rgba(10,10,10,0.1) 100%);
   }
-  /* Statut compact */
-  .hero-status { top: 80px; left: 20px; gap: 8px; }
+  /* Statut COMPACT — flow naturel (pas absolute) pour éviter overlap avec name */
+  .hero-status {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    gap: 8px;
+    padding: 0;
+  }
   .hero-status-dot { width: 7px; height: 7px; }
   .hero-status-line1 { font-size: 10px; letter-spacing: 1.6px; }
+  .hero-status-line2 { font-size: 9px; letter-spacing: 1.4px; }
   /* Title block padding */
   .hero-content { padding: 0 20px 48px; gap: 20px; }
   .hero-tagline-bar { width: 28px; }
