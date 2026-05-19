@@ -1,12 +1,3 @@
 {
-  "shows": [
-    {
-      "country": "France",
-      "sold_out": false,
-      "link_label": "Infos",
-      "date": "2026-05-21",
-      "venue": "LE FIZZ",
-      "city": "Montpellier"
-    }
-  ]
+  "shows": []
 }
