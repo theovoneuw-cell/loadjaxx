@@ -2443,11 +2443,12 @@ h1, h2, h3 {
 /* ── CONTACT ─────────────────────────────────────────────── */
 #contact {
   background: var(--bg2);
-  padding: 60px 0 120px;        /* réduit top : 140 → 60 pour coller à la section EPK noire au-dessus */
+  padding: 24px 0 110px;        /* top réduit à 24 → la section colle visuellement au noir EPK au-dessus */
   position: relative;
   overflow: hidden;
 }
-/* Bordure de transition douce entre EPK (noir) et contact (clair) */
+.contact-left h2 { margin-top: 0; }
+/* Bordure de transition orange fine entre EPK (noir) et contact (clair) */
 #contact::before {
   content: '';
   position: absolute;
@@ -2805,13 +2806,13 @@ body.menu-open { overflow: hidden; }
     gap: 22px;
     width: 100%;
     align-items: stretch;
-    order: 5; /* hero-content (name + tagline + stats) en DERNIER */
+    order: 2; /* name + stats juste après le status, AVANT les cards → photo plus visible */
   }
-  /* Order : status → next-show → plateformes → réseaux → name+stats */
+  /* Order : status → name+stats → next-show → plateformes → réseaux */
   .hero-status                 { order: 1; }
-  .hero-next-card              { order: 2; }
-  .hero-social-card--platforms { order: 3; }
-  .hero-social-card--socials   { order: 4; }
+  .hero-next-card              { order: 3; }
+  .hero-social-card--platforms { order: 4; }
+  .hero-social-card--socials   { order: 5; }
   .hero-name { font-size: clamp(58px, 18vw, 100px); text-align: left; }
   .hero-cta { gap: 14px; flex-wrap: wrap; }
   /* Photo plein écran centrée sur le visage du DJ (top-right de l'image source)
