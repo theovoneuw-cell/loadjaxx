@@ -1281,10 +1281,10 @@ function spawnVinylConfetti(originEl) {
           <div class="release-play"><div class="release-play-btn"><svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg></div></div>
           ${featOverlay}
         </div>
-        ${!isFeat ? `<div class="release-info">
+        <div class="release-info">
           <div class="release-title">${item.name}</div>
           <div class="release-sub" data-type="${item.type}">${typeLabel} · ${item.year}</div>
-        </div>` : ''}
+        </div>
       </a>`;
   }
 

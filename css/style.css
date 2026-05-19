@@ -371,8 +371,56 @@ h1, h2, h3 {
   transition: background .2s, transform .2s !important;
 }
 .btn-nav:hover { background: var(--orange) !important; color: #fff !important; transform: translateY(-2px) !important; }
-.nav-burger { display: none; background: none; border: none; cursor: none; flex-direction: column; gap: 5px; padding: 4px; }
-.nav-burger span { display: block; width: 22px; height: 1.5px; background: var(--text); border-radius: 2px; transition: transform .3s, opacity .3s; }
+.nav-burger {
+  display: none;
+  position: relative;
+  width: 46px;
+  height: 46px;
+  background: rgba(15, 15, 15, 0.7);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 90, 0, 0.35);
+  border-radius: 50%;
+  cursor: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18), 0 0 18px rgba(255, 90, 0, 0.15);
+  transition: transform .35s cubic-bezier(.23,1,.32,1), border-color .25s, box-shadow .25s;
+}
+.nav-burger::before {
+  /* Anneau orange pulsant subtil (1 fois au mount puis idle) */
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 90, 0, 0.4);
+  opacity: 0;
+  animation: burgerPulse 3.5s ease-out 1.8s 2;
+}
+@keyframes burgerPulse {
+  0%   { transform: scale(0.92); opacity: 0.7; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+.nav-burger:hover,
+.nav-burger:active {
+  border-color: var(--orange);
+  box-shadow: 0 10px 24px rgba(255, 90, 0, 0.35), 0 0 24px rgba(255, 90, 0, 0.25);
+  transform: scale(1.04);
+}
+.nav-burger span {
+  display: block;
+  width: 18px;
+  height: 1.8px;
+  background: #fff;
+  border-radius: 2px;
+  transition: transform .3s, opacity .3s, background .3s, width .3s;
+}
+.nav-burger span:nth-child(2) { width: 12px; background: var(--orange); }
+.nav-burger:hover span:nth-child(2),
+.nav-burger:active span:nth-child(2) { width: 18px; }
 
 /* ── HERO ────────────────────────────────────────────────── */
 #hero {
@@ -1549,6 +1597,8 @@ h1, h2, h3 {
   grid-row: 1 / 3;
   aspect-ratio: 4 / 5;
 }
+/* Desktop : la feat card utilise l'overlay (feat-info), pas le bandeau standard */
+.release-card--feat .release-info { display: none; }
 .release-card--feat .release-cover {
   position: absolute;
   inset: 0;
@@ -2990,12 +3040,12 @@ body.menu-open { overflow: hidden; }
   #releases { padding: 90px 0; }
   .releases-intro h2 { font-size: clamp(34px, 9vw, 50px); }
 
-  /* La feat card se comporte EXACTEMENT comme les autres sur mobile :
-     cover carré en haut + info (titre + sub) dessous, fond clair, texte sombre */
+  /* Feat card identique aux autres : cover carré + bandeau .release-info dessous
+     L'overlay .release-feat-info est masqué, on utilise la structure standard */
   .release-card--feat {
     grid-column: span 1 !important;
     grid-row: span 1 !important;
-    aspect-ratio: auto !important;       /* hauteur naturelle (cover + info) */
+    aspect-ratio: auto !important;
     display: flex !important;
     flex-direction: column !important;
     background: var(--card);
@@ -3005,36 +3055,13 @@ body.menu-open { overflow: hidden; }
   .release-card--feat .release-cover {
     position: relative !important;
     inset: auto !important;
-    aspect-ratio: 1 / 1 !important;       /* cover carré comme les autres */
+    aspect-ratio: 1 / 1 !important;
     width: 100%;
   }
-  /* Feat-info sort du cover et devient un bandeau standard en dessous */
-  .release-feat-info {
-    position: relative !important;
-    inset: auto !important;
-    background: transparent !important;
-    padding: 10px 12px 12px;
-    flex: 1;
-  }
-  .release-feat-title {
-    color: var(--text);                   /* texte sombre sur bg clair */
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.25;
-    white-space: normal;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    margin-bottom: 4px;
-  }
-  .release-feat-sub {
-    font-size: 9.5px;
-    color: var(--orange);
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
+  /* Masque l'overlay feat (titre dans l'image) sur mobile,
+     on affiche le bandeau .release-info standard à la place (en dessous) */
+  .release-card--feat .release-feat-info { display: none !important; }
+  .release-card--feat .release-info { display: block !important; }
 
   /* Cards régulières — assurer cohérence visuelle */
   .release-info { padding: 10px 12px 12px; }
