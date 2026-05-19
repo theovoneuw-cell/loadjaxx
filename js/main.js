@@ -1985,30 +1985,108 @@ document.querySelectorAll('.hero-social-link').forEach(link => {
     ringRaf = requestAnimationFrame(pumpRing);
   }
 
+  // Smoothing pour des barres qui pulsent doucement (pas saccadé)
+  let miniBarHeights = null;
+
   function drawMiniWave() {
     if (!miniCtx || !analyser) { miniWaveRaf = requestAnimationFrame(drawMiniWave); return; }
+
+    // Resize canvas pour matcher sa taille CSS (crispness retina)
+    const rect = miniPlayerCanvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const wantW = Math.round(rect.width * dpr);
+    const wantH = Math.round(rect.height * dpr);
+    if (miniPlayerCanvas.width !== wantW || miniPlayerCanvas.height !== wantH) {
+      miniPlayerCanvas.width = wantW;
+      miniPlayerCanvas.height = wantH;
+    }
     const W = miniPlayerCanvas.width;
     const H = miniPlayerCanvas.height;
+
     if (!miniWaveData || miniWaveData.length !== analyser.frequencyBinCount) {
       miniWaveData = new Uint8Array(analyser.frequencyBinCount);
     }
     analyser.getByteFrequencyData(miniWaveData);
+
+    const BARS = 56;
+    if (!miniBarHeights || miniBarHeights.length !== BARS) miniBarHeights = new Float32Array(BARS);
+
+    // Distribution LOGARITHMIQUE des fréquences (au lieu de linéaire qui concentrait
+    // toute l'énergie à gauche) → visuellement plus équilibré et "musical"
+    const fftLen = miniWaveData.length;
+    const minBin = 2;
+    const maxBin = Math.floor(fftLen * 0.85);
+    const logMin = Math.log(minBin);
+    const logMax = Math.log(maxBin);
+
+    // Progress audio pour la coloration past/upcoming
+    const dur = audio?.duration || 30;
+    const progressPct = Math.min(1, (audio?.currentTime || 0) / dur);
+    const playheadX = progressPct * W;
+
     miniCtx.clearRect(0, 0, W, H);
-    const bars = 48;
-    const step = Math.floor(miniWaveData.length / bars);
-    const barW = (W / bars) - 1;
-    for (let i = 0; i < bars; i++) {
-      const v = miniWaveData[i * step] / 255;
-      const h = Math.max(2, v * H * 0.95);
-      const x = i * (W / bars);
-      const y = (H - h) / 2;
-      const grad = miniCtx.createLinearGradient(0, y, 0, y + h);
-      grad.addColorStop(0,   'rgba(255, 200, 100, 0.95)');
-      grad.addColorStop(0.5, 'rgba(255, 140, 60, 0.95)');
-      grad.addColorStop(1,   'rgba(255, 90, 0, 0.6)');
+    const cy = H / 2;
+    const gap = 2 * dpr;
+    const barW = (W - gap * (BARS - 1)) / BARS;
+
+    for (let i = 0; i < BARS; i++) {
+      // Échantillon logarithmique : moyenne sur une bande de fréquence
+      const lo = Math.floor(Math.exp(logMin + (logMax - logMin) * (i / BARS)));
+      const hi = Math.floor(Math.exp(logMin + (logMax - logMin) * ((i + 1) / BARS)));
+      let sum = 0, n = 0;
+      for (let k = lo; k < hi && k < fftLen; k++) { sum += miniWaveData[k]; n++; }
+      const raw = n ? (sum / n) / 255 : 0;
+
+      // Smoothing : remonte vite, descend lentement → "peak hold lite"
+      const target = Math.pow(raw, 0.85); // léger boost des aigus
+      const prev = miniBarHeights[i];
+      miniBarHeights[i] = target > prev ? prev + (target - prev) * 0.55 : prev + (target - prev) * 0.18;
+      const v = miniBarHeights[i];
+
+      // Hauteur minimale 4px (dpr) pour avoir une ligne de base visible même au silence
+      const halfH = Math.max(2 * dpr, v * H * 0.46);
+      const x = i * (barW + gap);
+      const isPast = x + barW / 2 < playheadX;
+
+      // Bar SYMÉTRIQUE (mirror autour du centre vertical)
+      const yTop = cy - halfH;
+      const barH = halfH * 2;
+
+      // Coloration : past = orange vif, upcoming = grey-orange estompé
+      let grad;
+      if (isPast) {
+        grad = miniCtx.createLinearGradient(0, yTop, 0, yTop + barH);
+        grad.addColorStop(0,   'rgba(255, 200, 120, 0.95)');
+        grad.addColorStop(0.5, 'rgba(255, 130, 40, 1)');
+        grad.addColorStop(1,   'rgba(255, 90, 0, 0.85)');
+      } else {
+        grad = miniCtx.createLinearGradient(0, yTop, 0, yTop + barH);
+        grad.addColorStop(0,   'rgba(255, 255, 255, 0.32)');
+        grad.addColorStop(0.5, 'rgba(255, 180, 100, 0.42)');
+        grad.addColorStop(1,   'rgba(255, 255, 255, 0.32)');
+      }
       miniCtx.fillStyle = grad;
-      miniCtx.fillRect(x, y, barW, h);
+
+      // Rectangle aux coins arrondis (top + bottom)
+      const r = Math.min(barW / 2, 2 * dpr);
+      if (miniCtx.roundRect) {
+        miniCtx.beginPath();
+        miniCtx.roundRect(x, yTop, barW, barH, r);
+        miniCtx.fill();
+      } else {
+        miniCtx.fillRect(x, yTop, barW, barH);
+      }
     }
+
+    // Playhead vertical fin lumineux à la position actuelle
+    if (playheadX > 0 && playheadX < W) {
+      miniCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      miniCtx.shadowColor = 'rgba(255, 90, 0, 0.95)';
+      miniCtx.shadowBlur = 6 * dpr;
+      miniCtx.fillRect(playheadX - dpr, 0, 2 * dpr, H);
+      miniCtx.shadowBlur = 0;
+    }
+
     miniWaveRaf = requestAnimationFrame(drawMiniWave);
   }
 
@@ -2142,180 +2220,3 @@ document.querySelectorAll('.hero-social-link').forEach(link => {
   }
 })();
 
-// ═══════════════════════════════════════════════════════════════
-// ── CRATE MODE ─ Easter egg : K → pile de vinyles 3D ──
-// ═══════════════════════════════════════════════════════════════
-(function crateMode() {
-  const overlay     = document.getElementById('crateOverlay');
-  const counterEl   = document.getElementById('crateCounter');
-  const trackNameEl = document.getElementById('crateCurrentTrack');
-  const inviteEl    = document.getElementById('crateInvite');
-  const inviteClose = inviteEl?.querySelector('.crate-invite-close');
-  if (!overlay) return;
-
-  let active = false;
-  let cards  = [];
-  let idx    = 0;
-  let savedScroll = 0;
-  let usedOnce = localStorage.getItem('loadjaxx_crate_seen') === '1';
-
-  function getCards() {
-    return Array.from(document.querySelectorAll('#releasesGrid .release-card'));
-  }
-
-  function layout() {
-    cards.forEach((c, i) => {
-      const offset = i - idx;
-      const abs = Math.abs(offset);
-      const x  = offset * 80;
-      const z  = -abs * 140;
-      const ry = offset * -18;
-      const op = abs > 4 ? 0 : Math.max(0.1, 1 - abs * 0.18);
-      c.style.setProperty('--crate-x',  x + 'px');
-      c.style.setProperty('--crate-z',  z + 'px');
-      c.style.setProperty('--crate-ry', ry + 'deg');
-      c.style.setProperty('--crate-op', op);
-      c.style.zIndex = String(100 - abs);
-      c.classList.toggle('crate-current', i === idx);
-    });
-    if (counterEl) counterEl.textContent = `${String(idx + 1).padStart(2, '0')} / ${String(cards.length).padStart(2, '0')}`;
-    const current = cards[idx];
-    if (current && trackNameEl) {
-      const name = current.dataset.track
-        || current.querySelector('.release-title, .release-feat-title')?.textContent
-        || '—';
-      trackNameEl.textContent = name;
-    }
-  }
-
-  function hideInvite() {
-    if (!inviteEl) return;
-    inviteEl.classList.remove('visible');
-    usedOnce = true;
-    try { localStorage.setItem('loadjaxx_crate_seen', '1'); } catch(e) {}
-  }
-
-  function enter() {
-    if (active) return;
-    cards = getCards();
-    if (!cards.length) return;
-    // Stop toute preview audio en cours (crate mode prend la main)
-    if (typeof window._stopTrackPreview === 'function') window._stopTrackPreview();
-    active = true;
-    savedScroll = window.scrollY;
-    document.body.classList.add('crate-mode');
-    overlay.setAttribute('aria-hidden', 'false');
-    idx = 0;
-    layout();
-    hideInvite();
-  }
-
-  function exit() {
-    if (!active) return;
-    active = false;
-    document.body.classList.remove('crate-mode');
-    overlay.setAttribute('aria-hidden', 'true');
-    cards.forEach(c => {
-      c.style.removeProperty('--crate-x');
-      c.style.removeProperty('--crate-z');
-      c.style.removeProperty('--crate-ry');
-      c.style.removeProperty('--crate-op');
-      c.style.zIndex = '';
-      c.classList.remove('crate-current');
-    });
-    // Restore scroll position — pas de 'instant' (non-standard sur Firefox/Safari)
-    window.scrollTo(0, savedScroll);
-  }
-
-  function flip(dir) {
-    if (!active) return;
-    idx = (idx + dir + cards.length) % cards.length;
-    layout();
-  }
-
-  // ── Keybinds globaux
-  window.addEventListener('keydown', (e) => {
-    const tag = (e.target.tagName || '').toLowerCase();
-    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
-
-    if ((e.key === 'k' || e.key === 'K') && !active) { e.preventDefault(); enter(); return; }
-    if (!active) return;
-    if (e.key === 'Escape')                          { e.preventDefault(); exit(); }
-    else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { e.preventDefault(); flip(1); }
-    else if (e.key === 'ArrowLeft'  || e.key === 'q' || e.key === 'Q') { e.preventDefault(); flip(-1); }
-  });
-
-  // ── Clic sur le fond overlay (uniquement) → sortir
-  // NE PAS sortir si on clique sur les instructions ou le titre du morceau
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) exit();
-  });
-
-  // ── Clic sur une card : si pas la courante, flip vers elle au lieu d'ouvrir le lien
-  document.addEventListener('click', (e) => {
-    if (!active) return;
-    const card = e.target.closest && e.target.closest('.release-card');
-    if (!card || !cards.includes(card)) return;
-    const cardIdx = cards.indexOf(card);
-    if (cardIdx !== idx) {
-      e.preventDefault();
-      e.stopPropagation();
-      idx = cardIdx;
-      layout();
-    }
-  }, true);
-
-  // ── Swipe mobile bonus
-  let touchStartX = 0;
-  overlay.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].clientX;
-  }, { passive: true });
-  overlay.addEventListener('touchend', (e) => {
-    if (!active) return;
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 50) flip(dx < 0 ? 1 : -1);
-  });
-
-  // ── CTA INVITE — apparition après que le user a scrollé jusqu'aux releases
-  if (inviteEl) {
-    // Click direct sur le bouton → lance le crate mode
-    inviteEl.addEventListener('click', (e) => {
-      if (e.target === inviteClose) return;
-      enter();
-    });
-    if (inviteClose) {
-      inviteClose.addEventListener('click', (e) => {
-        e.stopPropagation();
-        hideInvite();
-      });
-    }
-
-    // Cursor hover hook
-    if (!isTouch) {
-      const cur = document.querySelector('.g-cursor');
-      if (cur) {
-        inviteEl.addEventListener('mouseenter', () => cur.classList.add('hover'));
-        inviteEl.addEventListener('mouseleave', () => cur.classList.remove('hover'));
-      }
-    }
-
-    // Apparition : déclenche quand la section releases entre dans le viewport
-    // — sauf si déjà utilisé / fermé dans une session précédente
-    if (!usedOnce) {
-      const releases = document.getElementById('releases');
-      if (releases && 'IntersectionObserver' in window) {
-        const io = new IntersectionObserver((entries) => {
-          entries.forEach(en => {
-            if (en.isIntersecting) {
-              setTimeout(() => {
-                if (!active && !usedOnce) inviteEl.classList.add('visible');
-              }, 600);
-              io.disconnect();
-            }
-          });
-        }, { threshold: 0.25 });
-        io.observe(releases);
-      }
-    }
-  }
-})();
