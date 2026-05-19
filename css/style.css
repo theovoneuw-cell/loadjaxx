@@ -2397,30 +2397,22 @@ h1, h2, h3 {
    SITE CABLES BG — câbles flous traversant tout le site
    ═══════════════════════════════════════════════════════════ */
 .site-cables-bg {
-  position: absolute; /* scrolle avec la page (au lieu de fixed) */
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%; /* hauteur = body height, mise à jour par JS si besoin */
+  height: 100%;
   pointer-events: none;
   z-index: 1;
-  filter: blur(5px);
-  opacity: 0.5;
-  /* Mask : plus visibles vers le bas (où le mixer apparaît au scroll) */
-  mask-image: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.35) 0%,
-    rgba(0, 0, 0, 0.55) 50%,
-    rgba(0, 0, 0, 1)    90%,
-    rgba(0, 0, 0, 1)    100%
-  );
-  -webkit-mask-image: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.35) 0%,
-    rgba(0, 0, 0, 0.55) 50%,
-    rgba(0, 0, 0, 1)    90%,
-    rgba(0, 0, 0, 1)    100%
-  );
+  /* Pas de filter blur (trop coûteux sur SVG de 5000px de haut) →
+     on utilise stdDeviation INTERNE via SVG <filter> + opacity */
+  opacity: 0.45;
+  /* Mask gradient simplifié + GPU compositing */
+  mask-image: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,1) 75%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,1) 75%);
+  transform: translateZ(0);       /* force compositing layer GPU */
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
 }
 /* body relative pour que le SVG absolute couvre toute la hauteur */
 body { position: relative; }

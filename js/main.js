@@ -31,33 +31,35 @@ if (!isTouch) {
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
 
-  // ─── Cursor trail : points orange qui suivent et fade-out ───
+  // ─── Cursor trail : points orange optimisés (pool DOM + GPU transform) ───
   const trailLayer = document.createElement('div');
   trailLayer.className = 'g-cursor-trail';
   document.body.appendChild(trailLayer);
-  const TRAIL_MAX = 14;
-  const trail = [];
-  let trailTick = 0;
-  let lastMouseX = 0, lastMouseY = 0, lastTrailTs = 0;
-  window.addEventListener('mousemove', e => {
-    lastMouseX = e.clientX; lastMouseY = e.clientY;
-    const now = performance.now();
-    // throttle : 1 point toutes les 30ms
-    if (now - lastTrailTs < 30) return;
-    lastTrailTs = now;
+  const TRAIL_POOL_SIZE = 10;
+  const trailPool = [];
+  // Pré-crée les DOM une fois, on les recycle au lieu de create/remove constamment
+  for (let i = 0; i < TRAIL_POOL_SIZE; i++) {
     const dot = document.createElement('span');
     dot.className = 'g-cursor-trail-dot';
-    dot.style.left = e.clientX + 'px';
-    dot.style.top  = e.clientY + 'px';
+    dot.style.opacity = '0';
     trailLayer.appendChild(dot);
-    trail.push(dot);
-    // fade-out + remove via timeout (synchro avec CSS animation)
-    setTimeout(() => { dot.remove(); }, 700);
-    if (trail.length > TRAIL_MAX) {
-      const old = trail.shift();
-      old.remove();
-    }
-  });
+    trailPool.push({ el: dot, ts: 0 });
+  }
+  let trailIdx = 0;
+  let lastTrailTs = 0;
+  window.addEventListener('mousemove', e => {
+    const now = performance.now();
+    // throttle plus aggressif : 1 point toutes les 70ms (~14 fps) au lieu de 30ms
+    if (now - lastTrailTs < 70) return;
+    lastTrailTs = now;
+    const item = trailPool[trailIdx];
+    trailIdx = (trailIdx + 1) % TRAIL_POOL_SIZE;
+    item.el.style.left = e.clientX + 'px';
+    item.el.style.top  = e.clientY + 'px';
+    item.el.style.animation = 'none';
+    void item.el.offsetWidth; // force reflow pour réarmer l'animation
+    item.el.style.animation = '';
+  }, { passive: true });
 }
 
 // ── NAVBAR ────────────────────────────────────────────────────

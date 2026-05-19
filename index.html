@@ -22,7 +22,12 @@
         <stop offset="50%" stop-color="#2a2a2a"/>
         <stop offset="100%" stop-color="#0d0d0d"/>
       </linearGradient>
+      <!-- Blur SVG interne : beaucoup plus performant que filter:blur en CSS -->
+      <filter id="bgCablesBlur" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur stdDeviation="2.5"/>
+      </filter>
     </defs>
+    <g filter="url(#bgCablesBlur)">
     <!-- Câbles longs qui partent du haut/des côtés et convergent vers le bas-droite
          (où la console contact se trouvera quand on scroll) -->
     <g class="bg-cable">
@@ -48,6 +53,7 @@
     <g class="bg-cable">
       <path class="cable-sheath" d="M -60 2400 C 200 2900, 500 3400, 780 3900 S 1080 4700, 1200 4920"/>
       <path class="cable-signal" d="M -60 2400 C 200 2900, 500 3400, 780 3900 S 1080 4700, 1200 4920"/>
+    </g>
     </g>
   </svg>
 
