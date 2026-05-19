@@ -1,47 +1,77 @@
+# ════════════════════════════════════════════════════════════════
+# DECAP CMS — Configuration du panel d'admin pour Loadjaxx
+# Documentation : https://decapcms.org/docs/intro/
+# ════════════════════════════════════════════════════════════════
+
 backend:
-  name: git-gateway
-  branch: main
+  name: git-gateway      # Storage = ton repo GitHub via Netlify Git Gateway
+  branch: master         # Branche cible (les modifs commitent ici directement)
 
-media_folder: "assets"
-public_folder: "assets"
+# Dossier où Decap upload les images quand on les drop dans un champ image
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
 
+# Langue d'interface
+locale: fr
+
+# Active la page d'accueil avec aperçu site embarqué
+display_url: https://loadjaxx.com
+site_url:    https://loadjaxx.com
+
+# ─────────────────────────────────────────────────────────────────
+# COLLECTIONS — Ce que l'artiste peut éditer
+# Pour cette première version : uniquement les SHOWS (dates de tournée).
+# On ajoutera d'autres collections (about, hero stats, releases…) plus tard.
+# ─────────────────────────────────────────────────────────────────
 collections:
-  - name: "content"
-    label: "Mon site"
+  - name: "shows"
+    label: "Dates & Shows"
+    label_singular: "Show"
+    description: "Ajoute, modifie ou supprime tes dates de concert. Les dates passées sont automatiquement archivées."
     files:
-
-      - name: "general"
-        label: "Infos générales"
-        file: "_data/content.json"
-        format: json
+      - name: "shows-list"
+        label: "Liste des dates"
+        file: "data/shows.json"
+        format: "json"
         fields:
-          - { label: "Nom artiste",    name: nom,          widget: string }
-          - { label: "Sous-titre",     name: sous_titre,   widget: string }
-          - { label: "Bio",            name: bio,          widget: text }
-          - { label: "Photo",          name: photo,        widget: image }
-          - { label: "Instagram URL",  name: instagram,    widget: string }
-          - { label: "Linktree URL",   name: linktree,     widget: string }
-          - { label: "SoundCloud URL", name: soundcloud,   widget: string, required: false }
-          - { label: "Spotify URL",    name: spotify,      widget: string, required: false }
-          - { label: "Email booking",  name: email_booking, widget: string }
-          - label: "Statistiques"
-            name: stats
+          - name: shows
+            label: "Tes dates"
+            label_singular: "date"
             widget: list
+            summary: "{{date}} · {{venue}} · {{city}}"
             fields:
-              - { label: "Valeur", name: valeur, widget: string }
-              - { label: "Label",  name: label,  widget: string }
-          - label: "Releases & Remixes"
-            name: releases
-            widget: list
-            fields:
-              - { label: "Titre",  name: titre, widget: string }
-              - { label: "Image",  name: image, widget: image }
-              - { label: "Lien",   name: lien,  widget: string }
-          - label: "Dates de shows"
-            name: shows
-            widget: list
-            fields:
-              - { label: "Date",  name: date, widget: date, format: "YYYY-MM-DD" }
-              - { label: "Lieu",  name: lieu, widget: string }
-              - { label: "Ville", name: ville, widget: string }
-              - { label: "Lien billets", name: lien, widget: string, required: false }
+              - name: date
+                label: "Date du show"
+                widget: datetime
+                format: "YYYY-MM-DD"
+                date_format: "YYYY-MM-DD"
+                time_format: false
+                picker_utc: false
+              - name: venue
+                label: "Lieu (club / festival)"
+                widget: string
+                hint: "Ex: Glow Up, Warehouse Festival, Studio M…"
+              - name: city
+                label: "Ville"
+                widget: string
+                hint: "Ex: Paris"
+              - name: country
+                label: "Pays"
+                widget: string
+                default: "France"
+              - name: sold_out
+                label: "Sold Out ?"
+                widget: boolean
+                default: false
+                hint: "Coche si la date est complète — un tampon orange apparaît sur le site"
+              - name: link
+                label: "Lien externe (billetterie / replay)"
+                widget: string
+                required: false
+                hint: "Optionnel — laisse vide pour pointer vers le formulaire de contact"
+              - name: link_label
+                label: "Texte du bouton"
+                widget: string
+                required: false
+                default: "Billets"
+                hint: "Ex: 'Billets', 'Replay', 'Infos'"

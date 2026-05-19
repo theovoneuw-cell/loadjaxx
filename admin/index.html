@@ -1,12 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Loadjaxx — Gestion du site</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <!-- Netlify Identity : gère le login admin (invitation par email) -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
+  <!-- Decap CMS — panel d'administration -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    // Workflow standard : si pas connecté, le widget Identity propose le login ;
+    // après login réussi, redirige sur /admin/ pour entrer dans le CMS
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on('init', user => {
+        if (!user) {
+          window.netlifyIdentity.on('login', () => {
+            document.location.href = '/admin/';
+          });
+        }
+      });
+    }
+  </script>
 </body>
 </html>

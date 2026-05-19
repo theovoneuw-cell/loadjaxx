@@ -248,13 +248,85 @@ function _heroFallback() {
         onComplete: () => {
           loader.style.display = 'none';
           document.body.style.overflow = '';
-          try { initScrollAnimations(); } catch(e) { console.warn(e); }
-          try { triggerHeroAnimations(); } catch(e) { console.warn(e); _heroFallback(); }
+          // Charge les shows depuis /data/shows.json AVANT d'animer (sinon les
+          // animations s'attacheraient à des éléments qui n'existent pas encore)
+          loadShows().finally(() => {
+            try { initScrollAnimations(); } catch(e) { console.warn(e); }
+            try { triggerHeroAnimations(); } catch(e) { console.warn(e); _heroFallback(); }
+          });
         }
       });
     }, 300);
   }, 2200);
 })();
+
+// ── SHOWS LOADER ──────────────────────────────────────────────
+// Fetch /data/shows.json (édité via /admin) et injecte les show-items
+// dans #showsList. Doit s'exécuter AVANT initScrollAnimations pour que
+// les animations + tri + countdown s'attachent au DOM fraîchement créé.
+async function loadShows() {
+  const list = document.getElementById('showsList');
+  if (!list) return;
+
+  const MAP_PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>';
+  const MONTHS_FR = ['Jan','Fév','Mars','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'];
+
+  function fmtMonth(date) {
+    const d = new Date(date);
+    return `${MONTHS_FR[d.getMonth()]} ${d.getFullYear()}`;
+  }
+  function fmtDay(date) {
+    const d = new Date(date);
+    return String(d.getDate()).padStart(2, '0');
+  }
+
+  function buildShow(show, i) {
+    const color = (i % 2 === 0) ? '#FF5A00' : '#FF8C42';
+    const soldBadge = show.sold_out
+      ? '<span class="show-badge show-badge--sold">Sold Out</span>'
+      : '';
+    const cityLine = [show.city, show.country].filter(Boolean).join(', ');
+    const actionLink = show.link
+      ? `<a href="${show.link}" target="_blank" rel="noopener" class="btn-small">${show.link_label || 'Billets'}</a>`
+      : `<a href="#contact" class="btn-small">${show.link_label || 'Infos'}</a>`;
+
+    return `
+      <div class="show-item" data-date="${show.date}" data-color="${color}">
+        <div class="show-item-bg"></div>
+        <div class="show-item-inner">
+          <div class="show-num">${String(i + 1).padStart(2, '0')}</div>
+          <div class="show-date-block">
+            <div class="show-day">${fmtDay(show.date)}</div>
+            <div class="show-month">${fmtMonth(show.date)}</div>
+          </div>
+          <div class="show-info">
+            <div class="show-venue">${show.venue}${soldBadge ? ' ' + soldBadge : ''}</div>
+            <div class="show-city">${MAP_PIN_SVG}${cityLine}</div>
+          </div>
+          <div class="show-countdown" data-date="${show.date}">—</div>
+          <div class="show-action">${actionLink}</div>
+        </div>
+        <div class="show-progress"><div class="show-progress-fill" data-date="${show.date}"></div></div>
+      </div>`;
+  }
+
+  try {
+    const res = await fetch('data/shows.json', { cache: 'no-cache' });
+    if (!res.ok) throw new Error('shows.json HTTP ' + res.status);
+    const data = await res.json();
+    const shows = Array.isArray(data?.shows) ? data.shows : [];
+    if (!shows.length) {
+      list.innerHTML = '';
+      return;
+    }
+    list.innerHTML = shows.map(buildShow).join('');
+  } catch (err) {
+    console.warn('[shows] load failed:', err.message);
+    // Échec silencieux — la section reste vide, le featured affichera
+    // "Aucun show à venir" via le renderFeatured existant
+    list.innerHTML = '';
+  }
+}
 
 // ── HERO WAVEFORM ─────────────────────────────────────────────
 (function() {
