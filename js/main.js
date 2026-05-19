@@ -1390,28 +1390,26 @@ function spawnVinylConfetti(originEl) {
   }
 })();
 
-// ── Tour map France ───────────────────────────────────────────
-(function tourMap() {
-  const svg     = document.querySelector('.shows-map-svg');
-  const citiesG = document.getElementById('mapCities');
-  const routeEl = document.getElementById('mapRoute');
+// ── Tour map Leaflet (vraie carte) ────────────────────────────
+(function tourMapLeaflet() {
+  const mapEl   = document.getElementById('leafletMap');
   const countEl = document.getElementById('mapCount');
   const popup   = document.getElementById('mapPopup');
-  if (!svg || !citiesG || !routeEl) return;
+  if (!mapEl || typeof L === 'undefined') return;
 
-  // Coordonnées des villes — viewBox 220x240, alignées sur le contour hexagonal
+  // Coordonnées GPS réelles
   const CITY_COORDS = {
-    'paris':       { x: 118, y: 58,  label: 'Paris'      },
-    'lyon':        { x: 142, y: 128, label: 'Lyon'       },
-    'bordeaux':    { x: 60,  y: 162, label: 'Bordeaux'   },
-    'montpellier': { x: 118, y: 188, label: 'Montpellier'},
-    'marseille':   { x: 148, y: 192, label: 'Marseille'  },
-    'lille':       { x: 125, y: 28,  label: 'Lille'      },
-    'strasbourg':  { x: 170, y: 62,  label: 'Strasbourg' },
-    'toulouse':    { x: 95,  y: 188, label: 'Toulouse'   },
-    'nantes':      { x: 52,  y: 112, label: 'Nantes'     },
-    'rennes':      { x: 55,  y: 82,  label: 'Rennes'     },
-    'nice':        { x: 168, y: 188, label: 'Nice'       },
+    'paris':       { lat: 48.8566, lng: 2.3522,  label: 'Paris'      },
+    'lyon':        { lat: 45.7640, lng: 4.8357,  label: 'Lyon'       },
+    'bordeaux':    { lat: 44.8378, lng: -0.5792, label: 'Bordeaux'   },
+    'montpellier': { lat: 43.6108, lng: 3.8767,  label: 'Montpellier'},
+    'marseille':   { lat: 43.2965, lng: 5.3698,  label: 'Marseille'  },
+    'lille':       { lat: 50.6292, lng: 3.0573,  label: 'Lille'      },
+    'strasbourg':  { lat: 48.5734, lng: 7.7521,  label: 'Strasbourg' },
+    'toulouse':    { lat: 43.6047, lng: 1.4442,  label: 'Toulouse'   },
+    'nantes':      { lat: 47.2184, lng: -1.5536, label: 'Nantes'     },
+    'rennes':      { lat: 48.1173, lng: -1.6778, label: 'Rennes'     },
+    'nice':        { lat: 43.7102, lng: 7.2620,  label: 'Nice'       },
   };
 
   function normalize(s) {
@@ -1421,87 +1419,96 @@ function spawnVinylConfetti(originEl) {
       .replace(/[^a-z]/g, '');
   }
 
-  function buildMap() {
+  // Init Leaflet centré sur la France
+  const map = L.map(mapEl, {
+    zoomControl: false,
+    attributionControl: true,
+    scrollWheelZoom: false,
+    dragging: !('ontouchstart' in window) ? true : true,
+    doubleClickZoom: true,
+    boxZoom: false,
+    keyboard: false,
+    tap: true,
+  }).setView([46.6, 2.8], 5.5);
+
+  // Tuiles CartoDB Dark Matter (fond sombre, CSS filter va ajouter le orange)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> · <a href="https://carto.com/" target="_blank">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 12,
+    minZoom: 4,
+  }).addTo(map);
+
+  function buildMarkers() {
     const showItems = Array.from(document.querySelectorAll('.show-item[data-date]'));
     if (!showItems.length) return;
-    // Extrait { city, date, venue, isPast } depuis chaque show
+
     const shows = showItems.map(el => {
       const cityText = (el.querySelector('.show-city')?.textContent || '').trim();
       const cityKey  = normalize(cityText.split(',')[0]);
       const venue    = (el.querySelector('.show-venue')?.childNodes[0]?.textContent || '').trim();
       const date     = el.dataset.date;
       const isPast   = el.classList.contains('show-item--past') || new Date(date).getTime() < Date.now();
-      return { cityKey, cityText: cityText.split(',')[0].trim(), venue, date, isPast };
+      return { cityKey, cityText: cityText.split(',')[0].trim(), venue, date, isPast, el };
     });
 
-    // Dédoublonne par ville mais garde l'occurrence la plus pertinente (upcoming en priorité)
+    // Dédoublonne, préfère upcoming
     const uniqueByCity = new Map();
     shows.forEach(s => {
       const existing = uniqueByCity.get(s.cityKey);
       if (!existing) { uniqueByCity.set(s.cityKey, s); return; }
-      // Préfère upcoming sur past
       if (existing.isPast && !s.isPast) uniqueByCity.set(s.cityKey, s);
     });
-    const unique = Array.from(uniqueByCity.values());
-
-    // Ne garde que celles dont on a les coords
-    const positioned = unique
+    const unique = Array.from(uniqueByCity.values())
       .filter(s => CITY_COORDS[s.cityKey])
       .map(s => ({ ...s, ...CITY_COORDS[s.cityKey] }));
 
-    // Trie par date pour dessiner la route
-    const upcomingPositioned = positioned
+    const upcoming = unique
       .filter(s => !s.isPast)
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    // Génère les dots SVG
-    citiesG.innerHTML = '';
-    positioned.forEach(s => {
-      const NS = 'http://www.w3.org/2000/svg';
-      const g  = document.createElementNS(NS, 'g');
-      g.setAttribute('class', `shows-map-city ${s.isPast ? 'past' : 'upcoming'}`);
-      g.dataset.city  = s.cityText;
-      g.dataset.venue = s.venue;
-      g.dataset.date  = s.date;
-
-      const glow = document.createElementNS(NS, 'circle');
-      glow.setAttribute('cx', s.x); glow.setAttribute('cy', s.y); glow.setAttribute('r', 14);
-      glow.setAttribute('class', 'glow');
-
-      const dot = document.createElementNS(NS, 'circle');
-      dot.setAttribute('cx', s.x); dot.setAttribute('cy', s.y); dot.setAttribute('r', 3.5);
-      dot.setAttribute('class', 'dot');
-
-      const text = document.createElementNS(NS, 'text');
-      text.setAttribute('x', s.x); text.setAttribute('y', s.y - 8);
-      text.textContent = s.label.toUpperCase();
-
-      g.appendChild(glow); g.appendChild(dot); g.appendChild(text);
-      citiesG.appendChild(g);
-
-      g.addEventListener('mouseenter', () => showPopup(s));
-      g.addEventListener('mouseleave', hidePopup);
-      g.addEventListener('click', () => {
-        const target = document.querySelector(`.show-item[data-date="${s.date}"]`);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Markers customs avec divIcon
+    unique.forEach(s => {
+      const showLabel = s.label;
+      const html = `
+        <div class="tour-marker ${s.isPast ? 'past' : 'upcoming'}">
+          <div class="tour-marker-dot"></div>
+          <div class="tour-marker-label">${showLabel}</div>
+        </div>`;
+      const icon = L.divIcon({
+        className: 'tour-marker-icon',
+        html,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+      });
+      const marker = L.marker([s.lat, s.lng], { icon, riseOnHover: true }).addTo(map);
+      marker.on('mouseover', () => showPopup(s));
+      marker.on('mouseout',  hidePopup);
+      marker.on('click', () => {
+        if (s.el) s.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
     });
 
-    // Dessine la route (path qui relie les upcoming dans l'ordre chrono)
-    if (upcomingPositioned.length >= 2) {
-      let d = `M ${upcomingPositioned[0].x} ${upcomingPositioned[0].y}`;
-      for (let i = 1; i < upcomingPositioned.length; i++) {
-        const a = upcomingPositioned[i - 1];
-        const b = upcomingPositioned[i];
-        // Courbe quadratique pour fluidité
-        const mx = (a.x + b.x) / 2;
-        const my = (a.y + b.y) / 2 - 14;
-        d += ` Q ${mx} ${my} ${b.x} ${b.y}`;
-      }
-      routeEl.setAttribute('d', d);
+    // Route polyline entre upcoming dans l'ordre chrono
+    if (upcoming.length >= 2) {
+      const latLngs = upcoming.map(s => [s.lat, s.lng]);
+      const route = L.polyline(latLngs, {
+        color: '#FF5A00',
+        weight: 2,
+        opacity: 0.85,
+        dashArray: '6 8',
+        className: 'tour-route-path',
+        smoothFactor: 1.5,
+      }).addTo(map);
     }
 
-    if (countEl) countEl.textContent = upcomingPositioned.length || positioned.length;
+    if (countEl) countEl.textContent = upcoming.length || unique.length;
+
+    // Auto-fit aux markers avec un peu de padding
+    if (unique.length > 0) {
+      const group = L.featureGroup(unique.map(s => L.marker([s.lat, s.lng])));
+      map.fitBounds(group.getBounds(), { padding: [40, 40], maxZoom: 6.5 });
+    }
   }
 
   function showPopup(s) {
@@ -1519,19 +1526,9 @@ function spawnVinylConfetti(originEl) {
   }
 
   // Délai pour laisser les show-items se réorganiser par date au load
-  setTimeout(buildMap, 200);
-  // Cursor hover hook
-  if (!isTouch) {
-    const cur = document.querySelector('.g-cursor');
-    if (cur) {
-      svg.addEventListener('mouseover', (e) => {
-        if (e.target.closest('.shows-map-city')) cur.classList.add('hover');
-      });
-      svg.addEventListener('mouseout', (e) => {
-        if (e.target.closest('.shows-map-city')) cur.classList.remove('hover');
-      });
-    }
-  }
+  setTimeout(buildMarkers, 300);
+  // Force resize au cas où la map est dans un container hidden au load
+  setTimeout(() => map.invalidateSize(), 500);
 })();
 
 // ── Quote typewriter au scroll (About) ────────────────────────
