@@ -1421,10 +1421,10 @@ function spawnVinylConfetti(originEl) {
 
   // Init Leaflet centré sur la France
   const map = L.map(mapEl, {
-    zoomControl: false,
-    attributionControl: true,
-    scrollWheelZoom: false,
-    dragging: !('ontouchstart' in window) ? true : true,
+    zoomControl: true,
+    attributionControl: false,
+    scrollWheelZoom: true,
+    dragging: true,
     doubleClickZoom: true,
     boxZoom: false,
     keyboard: false,
@@ -1433,7 +1433,7 @@ function spawnVinylConfetti(originEl) {
 
   // Tuiles CartoDB Dark Matter (fond sombre, CSS filter va ajouter le orange)
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> · <a href="https://carto.com/" target="_blank">CARTO</a>',
+    attribution: '',
     subdomains: 'abcd',
     maxZoom: 12,
     minZoom: 4,
